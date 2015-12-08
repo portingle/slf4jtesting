@@ -31,4 +31,13 @@ public class BasicExampleUnitTest {
 
         Mockito.verify(mockLogger).info("Hello World!");
     }
+
+    @Test
+    public void testAMethodThatSuppresses() throws Exception {
+
+        Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
+        TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+
+
+    }
 }

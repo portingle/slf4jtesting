@@ -191,3 +191,12 @@ public class MockingExampleUnitTest {
     }
 }
 ```
+
+### Console output suppression
+
+It is possible to suppress the console logging of expected lines.
+
+```
+Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
+TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+```
