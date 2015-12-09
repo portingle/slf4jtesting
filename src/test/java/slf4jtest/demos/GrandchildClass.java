@@ -1,4 +1,4 @@
-package slf4jtest.injection;
+package slf4jtest.demos;
 
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;

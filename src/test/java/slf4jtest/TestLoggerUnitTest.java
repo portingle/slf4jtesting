@@ -3,7 +3,6 @@ package slf4jtest;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
-import slf4jtest.util.StringPrintStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

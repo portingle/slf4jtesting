@@ -1,7 +1,8 @@
-package slf4jtest.injection;
+package slf4jtest.demos;
 
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
+import slf4jtest.demos.GrandchildClass;
 
 class ChildClass {
     private final Logger logger;

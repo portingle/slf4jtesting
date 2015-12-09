@@ -1,11 +1,13 @@
-package slf4jtest;
+package slf4jtest.demos;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
-import slf4jtest.util.StringPrintStream;
-
-import static org.junit.Assert.assertTrue;
+import slf4jtest.LogLevel;
+import slf4jtest.Settings;
+import slf4jtest.TestLogger;
+import slf4jtest.TestLoggerFactory;
+import slf4jtest.StringPrintStream;
 
 public class OtherDemos {
 
@@ -15,8 +17,10 @@ public class OtherDemos {
         Settings cfg = new Settings().associatePrintStream(LogLevel.InfoLevel, System.out);
         TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
 
-        BasicExample sut = new BasicExample(loggerFactory);
-        sut.doLogging();
+        TestLogger logger = loggerFactory.getLogger(this.getClass());
+
+        // no verification - expect to see some console logging
+        logger.info("Hello World!");
     }
 
     @Test
@@ -37,7 +41,7 @@ public class OtherDemos {
     public void testSuppressionOfLogPrinting() throws Exception {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        // capture info logging into a string stream
+        // capture info logging into a string stream so we can verify what the print streams get sent
         Settings cfg = new Settings()
                 .associatePrintStream(LogLevel.InfoLevel, ps)
                 .suppressPrinting(".*Pattern to suppress.*");

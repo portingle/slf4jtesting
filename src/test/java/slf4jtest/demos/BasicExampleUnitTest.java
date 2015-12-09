@@ -1,8 +1,10 @@
-package slf4jtest;
+package slf4jtest.demos;
 
 import org.junit.Test;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
+import slf4jtest.TestLogger;
+import slf4jtest.TestLoggerFactory;
 
 import static org.junit.Assert.assertTrue;
 

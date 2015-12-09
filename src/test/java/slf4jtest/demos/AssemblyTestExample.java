@@ -1,7 +1,6 @@
-package slf4jtest.injection;
+package slf4jtest.demos;
 
 import org.junit.Test;
-import slf4jtest.LogLevel;
 import slf4jtest.Settings;
 import slf4jtest.TestLoggerFactory;
 

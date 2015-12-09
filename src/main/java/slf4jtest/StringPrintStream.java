@@ -1,8 +1,9 @@
-package slf4jtest.util;
+package slf4jtest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+/** useful for capturing PrintStream output from the logging */
 public class StringPrintStream extends PrintStream {
 
     private final ByteArrayOutputStream baos;
