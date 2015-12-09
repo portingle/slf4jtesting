@@ -3,6 +3,7 @@ package slf4jtest;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import slf4jtest.util.StringPrintStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -73,8 +74,7 @@ public class TestLoggerUnitTest extends TestCase {
     }
 
     public void testCanSuppressPrintingSelectivelyButStillGetLogged() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
+        StringPrintStream ps = StringPrintStream.newStream();
 
         Settings settings = new Settings()
                 .associatePrintStream(LogLevel.ErrorLevel, ps)
@@ -89,17 +89,14 @@ public class TestLoggerUnitTest extends TestCase {
         l.error(ShouldBeLogged);
         l.error(ShouldBePrintSuppressed);
 
-        assert(baos.toString().contains(ShouldBeLogged));
+        assert(ps.toString().contains(ShouldBeLogged));
         assert (l.contains(ShouldBeLogged));
 
-        assert(!baos.toString().contains(ShouldBePrintSuppressed));
+        assert(!ps.toString().contains(ShouldBePrintSuppressed));
         assert (l.contains(ShouldBePrintSuppressed));
     }
 
     public void testDelegateToAMockingLibrary() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-
         Logger mockLogger = Mockito.mock(Logger.class);
         Settings settings = new Settings()
                 .printingEnabled(false)

@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class TestLoggerFactory implements LoggerFactoryExtensions {
+    private final long startTime = System.currentTimeMillis();
+
     private final Settings settings;
 
     private final ConcurrentMap<String, TestLogger> loggers = new ConcurrentHashMap<>();
@@ -28,6 +30,22 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
 
     public TestLoggerFactory() {
         this.settings = new Settings();
+    }
+
+    /** check across all loggers */
+    public boolean contains(LogLevel level, String regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.contains(level, regex)) return true;
+        }
+        return false;
+    }
+
+    /** check across all loggers */
+    public boolean contains(String regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.contains(regex)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -74,7 +92,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     private TestLogger createMock(final Settings settings, final String logName) {
 
         InvocationHandler handler = new InvocationHandler() {
-            LoggerExtensionsImpl extension = new LoggerExtensionsImpl(settings);
+            LoggerExtensionsImpl extension = new LoggerExtensionsImpl(settings, startTime);
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -97,41 +115,10 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
 
                     if (logFnNameToLogLevel.containsKey(name)) {
                         LogLevel l = logFnNameToLogLevel.get(name);
-                        Class<?>[] paramTypes = method.getParameterTypes();
+                        String s = formatLogMessage(method, args);
 
-                        StringBuilder s = new StringBuilder();
-                        int p = 0;
-                        if (paramTypes[0] == Marker.class) {
-                            p++;
-                        }
-
-                        if (paramTypes.length - p == 1) {
-                            s.append(args[p].toString());
-                        } else {
-                            String format = args[p].toString();
-
-                            FormattingTuple ft;
-                            if (paramTypes[p + 1] == Object[].class) {
-                                ft = MessageFormatter.arrayFormat(format, (Object[]) args[p + 1]);
-                            } else {
-                                Object[] arr = new Object[args.length - 1 - p];
-                                for (int i = 0; i < args.length - p - 1; i++) {
-                                    arr[i] = args[i + 1 + p];
-                                }
-
-                                ft = MessageFormatter.arrayFormat(format, arr);
-                            }
-                            s.append(ft.getMessage());
-
-                            if (null != ft.getThrowable()) {
-                                StringWriter sw = new StringWriter();
-                                ft.getThrowable().printStackTrace(new PrintWriter(sw));
-                                s.append("\n");
-                                s.append(sw.toString());
-                            }
-                        }
-
-                        extension.record(l, s.toString());
+                        LogMessage message = new LogMessage(logName, l, s);
+                        extension.record(message);
                     }
 
                     return null;
@@ -156,5 +143,43 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
                 Logger.class.getClassLoader(),
                 new Class<?>[]{TestLogger.class},
                 handler);
+    }
+
+    private String formatLogMessage(Method method, Object[] args) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        StringBuilder s = new StringBuilder();
+
+        int p = 0;
+        if (paramTypes[0] == Marker.class) {
+            p++;
+        }
+
+        if (paramTypes.length - p == 1) {
+            s.append(args[p].toString());
+        } else {
+            String format = args[p].toString();
+
+            FormattingTuple ft;
+            if (paramTypes[p + 1] == Object[].class) {
+                ft = MessageFormatter.arrayFormat(format, (Object[]) args[p + 1]);
+            } else {
+                Object[] arr = new Object[args.length - 1 - p];
+                for (int i = 0; i < args.length - p - 1; i++) {
+                    arr[i] = args[i + 1 + p];
+                }
+
+                ft = MessageFormatter.arrayFormat(format, arr);
+            }
+            s.append(ft.getMessage());
+
+            if (null != ft.getThrowable()) {
+                StringWriter sw = new StringWriter();
+                ft.getThrowable().printStackTrace(new PrintWriter(sw));
+                s.append("\n");
+                s.append(sw.toString());
+            }
+
+        }
+        return s.toString();
     }
 }

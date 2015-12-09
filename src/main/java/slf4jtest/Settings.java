@@ -87,6 +87,10 @@ public class Settings {
         return new Settings(print, printStreams, printSuppressions, enabledLevels, delegates);
     }
 
+    public Settings delegate(Class<?> loggerName, Logger logger) {
+        return delegate(loggerName.getName(), logger);
+    }
+
     public Settings delegate(String loggerName, Logger logger) {
         Map<String, Logger> newDelegates = new HashMap<>(delegates);
         newDelegates.put(loggerName, logger);
