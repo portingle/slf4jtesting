@@ -1,9 +1,9 @@
 # SLF4JTesting
 
-SLF4TTesting provides a "Testing Double" of SLF4J LoggerFactory to facilitate log testing but also as a utility
+SLF4JTesting provides a "Testing Double" of SLF4J LoggerFactory to facilitate log testing but also as a utility
 for use in unit and integration tests to conveniently configure logging on a test by test basis.
 
-SLF4TTesting has been designed to:
+SLF4JTesting has been designed to:
 
 - support unit and integration testing
 - support concurrent test execution such as [TestNG parallel suites](http://testng.org/doc/documentation-main.html#parallel-suites) or [Scalatest parallel test execution](http://doc.scalatest.org/2.0/index.html#org.scalatest.ParallelTestExecution) 
@@ -14,7 +14,7 @@ SLF4TTesting has been designed to:
 - allow selective suppression of individual console logging messages (eg to hide any expected errors)
 - support integration with mocking libraries (eg Mockito)
 
-SLT4FTesting differs from some other solutions because it:   
+SLF4JTesting differs from some other solutions because it:   
 
 * does not pollute the classpath with any StaticLoggerBinder stuff
 * does not compete with other SLF4J implementations resident on the classpath
