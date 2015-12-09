@@ -10,7 +10,7 @@ import java.io.PrintStream;
 public class TestLoggerUnitTest extends TestCase {
 
     public void testByDefaultOnlyErrorIsPrinted() {
-
+        System.err.println("----------hello");
         Settings settings = new Settings();
         assertTrue(settings.printStreams.get(LogLevel.ErrorLevel) != Settings.NoopPrintStream);
         assertTrue(settings.printStreams.get(LogLevel.WarnLevel) == Settings.NoopPrintStream);
