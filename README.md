@@ -29,6 +29,15 @@ SLF4JTesting differs from some other solutions because it:
 
 Include the jar as a test dependency.
 
+```
+<dependency>
+  <groupId>com.portingle</groupId>
+  <artifactId>slf4jtesting</artifactId>
+  <version>1.0.0</version>
+  <scope>test</scope>
+</dependency>
+```
+
 ### Basic Example
 
 Here we use constructor injection using the SLF4J logger factory interface.
