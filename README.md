@@ -201,9 +201,13 @@ public class MockingExampleUnitTest {
 }
 ```
 
-### Console output suppression
+### Locally configurabe console output & logging suppression
 
-It is possible to suppress the console logging of expected lines.
+Logging in tests can be controlled on a test by test basis without classpath fun and games.
+
+It is also possible to selectively suppress the console logging using regular expressions. This is particularly useful
+on those occasions where you want console logging turned on in a test (eg for diagnostics) but you do not want error logging
+caused by deliberate failures to clog the build console. In my experience this is most often around integration testing.
 
 ```
 Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
