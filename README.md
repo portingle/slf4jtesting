@@ -212,4 +212,7 @@ caused by deliberate failures to clog the build console. In my experience this i
 ```
 Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
 TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+
+logger.error("Pattern to suppress - will not be printed");
+logger.error("This will be printed");
 ```
