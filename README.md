@@ -61,8 +61,8 @@ public class Example1 {
 ```
 
 The `.getName()` is a tiny bit of boilerplate that's only necessary because SLF4J's'
-[ILoggerFactory[(http://www.slf4j.org/api/org/slf4j/ILoggerFactory.html) interface does not provide a by-class convenience
-method like (LoggerFactory)[http://www.slf4j.org/api/org/slf4j/LoggerFactory.html] does.
+[ILoggerFactory](http://www.slf4j.org/api/org/slf4j/ILoggerFactory.html) interface does not provide a by-class convenience
+method like [LoggerFactory](http://www.slf4j.org/api/org/slf4j/LoggerFactory.html) does.
 
 Constructor injection is not that arduous, even less so if you use a dependecy injection framework, but it provides the seam that allows us to
 inject out testing double.
