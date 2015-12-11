@@ -1,7 +1,10 @@
 # SLF4JTesting
 
+SLF4JTesting provides facilities for log testing that work well in environents with conncurrent test execution and where console logging is desired.
+
 SLF4JTesting provides a "Testing Double" of SLF4J LoggerFactory to facilitate log testing but also as a utility
-for use in unit and integration tests to conveniently configure logging on a test by test basis.
+for use in unit and integration tests to conveniently configure logging on a test by test basis. SLF4JTesting 
+does not rely on singletons or other constructs that might cause cross-test interference.
 
 SLF4JTesting has been designed to:
 
