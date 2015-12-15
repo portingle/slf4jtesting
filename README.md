@@ -232,6 +232,8 @@ caused by deliberate failures to clog the build console. In my experience this i
 Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
 TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
 
+Logger logger = loggerFactory.getLogger("name");
+
 logger.error("Pattern to suppress - will not be printed");
 logger.error("This will be printed");
 ```
