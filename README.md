@@ -1,6 +1,6 @@
 # SLF4JTesting
 
-SLF4JTesting provides facilities for log testing that work well in environents with concurrent test execution and where console logging is desired.
+SLF4JTesting provides facilities for log testing that work well in environments with concurrent test execution and where console logging is desired.
 
 SLF4JTesting provides a "Testing Double" of SLF4J LoggerFactory to facilitate log testing but also as a utility
 for use in unit and integration tests to conveniently configure logging on a test by test basis. SLF4JTesting 
@@ -67,8 +67,21 @@ The `.getName()` is a tiny bit of boilerplate that's only necessary because SLF4
 [ILoggerFactory](http://www.slf4j.org/api/org/slf4j/ILoggerFactory.html) interface does not provide a by-class convenience
 method like [LoggerFactory](http://www.slf4j.org/api/org/slf4j/LoggerFactory.html) does.
 
-Constructor injection is not that arduous, even less so if you use a dependecy injection framework, but it provides the seam that allows us to
-inject out testing double.
+A sample program might be ...
+
+```java
+class RunExample {
+  public static void main(String[] args) {
+    Example1 ex = new Example1(LogFactory.getILoggerFacyory());
+    ex.aMethodThatLogs();
+  }
+}
+
+```
+
+This constructor injection is not that arduous, even less so if you use a dependency injection framework, but this injection provides the seam that allows us to inject our testing double.
+
+Testing might look like this ...
 
 ```java
 import org.junit.Test;
@@ -89,8 +102,11 @@ public class Example1UnitTest {
 }
 ```
 
-
 ## Motivation
+
+### Isolation of one test from another and support for concurrent test execution
+
+A common complaint with other approaches is that their reliance on globals and static config means that tests interfere with each other. This can be dealt with perhaps by having a "reset" function on the log testing framework that is executed before each test case. However these other approaches do not facilitate concurrent test execution because by their nature they rely in singletons that would be mutated by the concurrent test cases making any kind of assertions difficult or impossible. At best you would end up with tests the blink.
 
 ### Improved construction patterns and testability
 
@@ -204,7 +220,7 @@ public class MockingExampleUnitTest {
 }
 ```
 
-### Locally configurabe console output & logging suppression
+### Locally configurable console output & logging suppression
 
 Logging in tests can be controlled on a test by test basis without classpath fun and games.
 
