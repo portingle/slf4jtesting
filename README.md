@@ -72,7 +72,7 @@ A sample program might be ...
 ```java
 class RunExample {
   public static void main(String[] args) {
-    Example1 ex = new Example1(LogFactory.getILoggerFacyory());
+    Example1 ex = new Example1(LogFactory.getILoggerFactory());
     ex.aMethodThatLogs();
   }
 }
