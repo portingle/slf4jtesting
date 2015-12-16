@@ -255,7 +255,7 @@ class Example1(ILoggerFactory lf = LoggerFactory.getIloggerFactory()) {
 
 The above example provices a default impl for the logger factory if the caller doesn't provide one.
 
-Or a scala translation of the example above ...
+Or a scala translation of the assembly example above ...
 
 ```scala
 import org.slf4j.ILoggerFactory;
