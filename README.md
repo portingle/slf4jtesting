@@ -235,3 +235,46 @@ Logger logger = loggerFactory.getLogger("name");
 logger.error("Pattern to suppress - will not be printed");
 logger.error("This will be printed");
 ```
+
+### Scala note
+
+I do mostly scala programming these days so I thought a scala usage example might be interesting
+
+```scala
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+
+class Example1(ILoggerFactory lf = LoggerFactory.getIloggerFactory()) {
+
+    public void aMethodThatLogs() {
+        logger.info("Hello World!");
+    }
+}
+ 
+```
+
+The above example provices a default impl for the logger factory if the caller doesn't provide one.
+
+Or a scala translation of the example above ...
+
+```scala
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+
+class AssemblyExample(lf: ILoggerFactory) {
+     private val ChildObject child = new ChildObject(lf)
+}
+
+class ChildObject(lf: ILoggerFactory) {
+     private val logger = lf.getLogger(AssemblyExample.class.getName())
+     private val grandchild = new GrandchildObject(lf)
+
+     def aMethodThatLogs(): Unit = logger.info("Hello World!")
+ }
+
+ class GrandchildObject(lf: ILoggerFactory) {
+     private val  logger = lf.getLogger(AssemblyExample.class.getName())
+     
+     def aMethodThatLogs(): Unit = logger.info("Bye World!");
+ }
+```
