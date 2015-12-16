@@ -161,7 +161,7 @@ If each parent object is injected with the logger factory and any objects the pa
      private final GrandchildObject grandchild;
 
      ChildObject(ILoggerFactory lf) {
-         logger = lf.getLogger(AssemblyExample.class.getName());
+         logger = lf.getLogger(ChildObject.class.getName());
          grandchild = new GrandchildObject(lf);
      }
 
@@ -174,7 +174,7 @@ If each parent object is injected with the logger factory and any objects the pa
      private final Logger logger;
 
      GrandchildObject (ILoggerFactory lf) {
-         logger = lf.getLogger(AssemblyExample.class.getName());
+         logger = lf.getLogger(GrandchildObject.class.getName());
      }
 
      public void aMethodThatLogs() {
@@ -241,14 +241,13 @@ logger.error("This will be printed");
 I do mostly scala programming these days so I thought a scala usage example might be interesting
 
 ```scala
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
+import org.slf4j.ILoggerFactory
+import org.slf4j.Logger
 
-class Example1(ILoggerFactory lf = LoggerFactory.getIloggerFactory()) {
+class Example1(lf:ILoggerFactory = LoggerFactory.getIloggerFactory()) {
+    private val logger = lf.getLogger(classOf[Example1].getName())
 
-    public void aMethodThatLogs() {
-        logger.info("Hello World!");
-    }
+    def aMethodThatLogs():Unit = logger.info("Hello World!")
 }
  
 ```
@@ -258,23 +257,23 @@ The above example provices a default impl for the logger factory if the caller d
 Or a scala translation of the assembly example above ...
 
 ```scala
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
+import org.slf4j.ILoggerFactory
+import org.slf4j.Logger
 
 class AssemblyExample(lf: ILoggerFactory) {
      private val ChildObject child = new ChildObject(lf)
 }
 
 class ChildObject(lf: ILoggerFactory) {
-     private val logger = lf.getLogger(AssemblyExample.class.getName())
+     private val logger = lf.getLogger(classOf[ChildObject].getName())
      private val grandchild = new GrandchildObject(lf)
 
      def aMethodThatLogs(): Unit = logger.info("Hello World!")
  }
 
  class GrandchildObject(lf: ILoggerFactory) {
-     private val  logger = lf.getLogger(AssemblyExample.class.getName())
+     private val logger = lf.getLogger(classOf[GrandchildObject].getName())
      
-     def aMethodThatLogs(): Unit = logger.info("Bye World!");
+     def aMethodThatLogs(): Unit = logger.info("Bye World!")
  }
 ```
