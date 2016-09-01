@@ -1,5 +1,9 @@
-group 'portingle'
+group 'com.portingle'
 version '1.0.1'
+
+apply plugin: 'maven'
+
+archivesBaseName = "slf4jtesting"
 
 apply plugin: 'java'
 apply plugin: 'com.portingle.classpathHell'
@@ -29,8 +33,87 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.10.19'
 }
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+apply plugin: 'signing'
+
+signing {
+    sign configurations.archives
+}
+
 test {
     testLogging.showStandardStreams = true
 }
 
 build.dependsOn(['checkClasspath'])
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.0'
+}
+
+// snapshot location https://oss.sonatype.org/content/repositories/snapshots/com/portingle/slf4jtesting/
+// staging https://oss.sonatype.org/service/local/staging/deploy/maven2/com/portingle/slf4jtesting/
+//
+// See here about reviewing the staging http://central.sonatype.org/pages/releasing-the-deployment.html
+// you have to look for a staging repo created by nexus when uploadArchives was done for this release.
+// Go here and search for it by group or artifact name .. https://oss.sonatype.org/#stagingRepositories
+//
+// consider using the Gradle Nexus Staging Maven as this avoids need to use the NExus gui to close and release the stage artifact.
+//
+// UNCOMMENT THIS SECTION AND USE ONLY FROM THE COMMAND LINE OTHERWISE TRAVIS ABORTS
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                authentication(userName: sonatypeUsername, password: sonatypePassword)
+//            }
+//
+//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                authentication(userName: sonatypeUsername, password: sonatypePassword)
+//            }
+//
+//            pom.project {
+//                name 'slf4jtesting'
+//                packaging 'jar'
+//
+//                // optionally artifactId can be defined here
+//                description 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
+//                url 'https://github.com/portingle/slf4jtesting'
+//
+//                scm {
+//                    connection 'scm:git@github.com:portingle/slf4jtesting.git'
+//                    developerConnection 'scm:git@github.com:portingle/slf4jtesting.git'
+//                    url 'scm:git@github.com:portingle/slf4jtesting.git'
+//                }
+//
+//                licenses {
+//                    license {
+//                        name 'The MIT Licence (MIT)'
+//                        url 'https://opensource.org/licenses/MIT'
+//                    }
+//                }
+//
+//                developers {
+//                    developer {
+//                        id 'Johnlon'
+//                        name 'John Lonergan'
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
