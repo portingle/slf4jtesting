@@ -47,12 +47,6 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-apply plugin: 'signing'
-
-signing {
-    sign configurations.archives
-}
-
 test {
     testLogging.showStandardStreams = true
 }
@@ -73,6 +67,12 @@ task wrapper(type: Wrapper) {
 // consider using the Gradle Nexus Staging Maven as this avoids need to use the NExus gui to close and release the stage artifact.
 //
 // UNCOMMENT THIS SECTION AND USE ONLY FROM THE COMMAND LINE OTHERWISE TRAVIS ABORTS
+//
+//apply plugin: 'signing'
+//
+//signing {
+//    sign configurations.archives
+//}
 //uploadArchives {
 //    repositories {
 //        mavenDeployer {

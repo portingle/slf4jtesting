@@ -76,6 +76,21 @@ public class Settings {
         return new Settings(print, printStreams, printSuppressions, newLevels, delegates);
     }
 
+    /**
+     * <pre>
+     * // setup a buffer to capture output
+     * ByteArrayOutputStream baos = new ByteArrayOutputStream();
+     * PrintStream ps = new PrintStream(baos);
+     *
+     * Settings settings = new Settings().associatePrintStream(LogLevel.ErrorLevel, ps);
+     * TestLoggerFactory f = new TestLoggerFactory(settings);
+     *
+     * // run some code using f
+     *
+     * // assert logging was captured
+     * assert(baos.toString().contains("bang"));
+     *</pre>
+     * */
     public Settings associatePrintStream(LogLevel level, PrintStream ps) {
         Map<LogLevel, PrintStream> newPrintStreams = new HashMap<>(printStreams);
         newPrintStreams.put(level, ps);
