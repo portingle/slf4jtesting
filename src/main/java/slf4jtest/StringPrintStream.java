@@ -21,4 +21,8 @@ public class StringPrintStream extends PrintStream {
     public String toString() {
         return baos.toString();
     }
+
+    public boolean contains(String sub) {
+        return toString().contains(sub);
+    }
 }

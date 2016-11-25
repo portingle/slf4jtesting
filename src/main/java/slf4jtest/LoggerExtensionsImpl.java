@@ -17,8 +17,17 @@ class LoggerExtensionsImpl implements LoggerExtensions {
     }
 
     public void record(LogMessage message) {
-        rows.add(message);
-        if (settings.print && !isSuppressed(message.text)) {
+        doLogging(message);
+        doConsole(message);
+    }
+
+    private void doLogging(LogMessage message) {
+        if (settings.isEnabled(message.level))
+            rows.add(message);
+    }
+
+    private void doConsole(LogMessage message) {
+        if (settings.isEnabled(message.level) && settings.printingEnabled && !isPrintSuppressed(message.text)) {
             PrintStream out = settings.printStreams.get(message.level);
             out.println(layout(message));
             out.flush();
@@ -34,7 +43,7 @@ class LoggerExtensionsImpl implements LoggerExtensions {
                 " - " + message.text;
     }
 
-    private boolean isSuppressed(String msg) {
+    private boolean isPrintSuppressed(String msg) {
         for (String regex : settings.printSuppressions) {
             if (msg.matches(regex)) return true;
         }

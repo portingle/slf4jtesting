@@ -7,14 +7,14 @@ import java.util.*;
 
 public class Settings {
     // controls whether printing to console occurs
-    final boolean print;
+    final boolean printingEnabled;
     // override console print streams per log level
     final Map<LogLevel, PrintStream> printStreams;
     // suppressPrinting certain regexes from printing
     final List<String> printSuppressions;
 
     // determine value of isXXXXEnabled
-    final List<LogLevel> enabledLevels;
+    final Set<LogLevel> enabledLevels;
     // push the call down onto a provided instance
     final Map<String, Logger> delegates;
 
@@ -23,28 +23,29 @@ public class Settings {
     private Settings(boolean print,
                      Map<LogLevel, PrintStream> printStreams,
                      List<String> suppressionPatterns,
-                     List<LogLevel> enabledLevels,
+                     Set<LogLevel> enabledLevels,
                      Map<String, Logger> delegates) {
-        this.print = print;
+        this.printingEnabled = print;
         this.printStreams = readonlyMap(printStreams);
         this.printSuppressions = readonlyList(suppressionPatterns);
-        this.enabledLevels = readonlyList(enabledLevels);
+        this.enabledLevels = readonlySet(enabledLevels);
         this.delegates = readonlyMap(delegates);
     }
 
     public Settings() {
-        print = true;
+        printingEnabled = true;
+
         printStreams = readonlyMap(new HashMap<LogLevel, PrintStream>() {
             {
                 for (LogLevel l : LogLevel.All) {
-                    put(l, NoopPrintStream);
+                    put(l, System.out);
                 }
                 put(LogLevel.ErrorLevel, System.err);
             }
         });
 
         printSuppressions = readonlyList();
-        enabledLevels = readonlyList(new ArrayList<LogLevel>() {{
+        enabledLevels = readonlySet(new HashSet<LogLevel>() {{
             add(LogLevel.ErrorLevel);
         }});
 
@@ -59,49 +60,59 @@ public class Settings {
         List<String> newSuppressions = new ArrayList<>(printSuppressions);
         newSuppressions.add(regex);
 
-        return new Settings(print, printStreams, newSuppressions, enabledLevels, delegates);
+        return new Settings(printingEnabled, printStreams, newSuppressions, enabledLevels, delegates);
     }
 
-    public Settings enable(LogLevel level) {
-        List<LogLevel> newLevels = new ArrayList<>(enabledLevels);
-        newLevels.add(level);
-
-        return new Settings(print, printStreams, printSuppressions, newLevels, delegates);
+    public Settings enableAll() {
+        return enable(LogLevel.All.toArray(new LogLevel[0]));
     }
 
-    public Settings disable(LogLevel level) {
-        List<LogLevel> newLevels = new ArrayList<>(enabledLevels);
-        newLevels.remove(level);
+    public Settings disableAll() {
+        return disable(LogLevel.All.toArray(new LogLevel[0]));
+    }
 
-        return new Settings(print, printStreams, printSuppressions, newLevels, delegates);
+    public Settings enable(LogLevel... levels) {
+        Set<LogLevel> newLevels = new HashSet<>(enabledLevels);
+        newLevels.addAll(Arrays.asList(levels));
+
+        return new Settings(printingEnabled, printStreams, printSuppressions, newLevels, delegates);
+    }
+
+    public Settings disable(LogLevel... levels) {
+        Set<LogLevel> newLevels = new HashSet<>(enabledLevels);
+        newLevels.removeAll(Arrays.asList(levels));
+
+        return new Settings(printingEnabled, printStreams, printSuppressions, newLevels, delegates);
     }
 
     /**
      * <pre>
      * // setup a buffer to capture output
-     * ByteArrayOutputStream baos = new ByteArrayOutputStream();
-     * PrintStream ps = new PrintStream(baos);
+     * StringPrintStream console = StringPrintStream.newStream();
      *
-     * Settings settings = new Settings().associatePrintStream(LogLevel.ErrorLevel, ps);
+     * Settings settings = new Settings().associatePrintStream(LogLevel.ErrorLevel, console);
      * TestLoggerFactory f = new TestLoggerFactory(settings);
      *
-     * // run some code using f
+     * // run some code using 'f' that logs 'someString'
      *
-     * // assert logging was captured
-     * assert(baos.toString().contains("bang"));
+     * // assert logging was emitted
+     * assert(console.contains("someString"));
      *</pre>
      * */
     public Settings associatePrintStream(LogLevel level, PrintStream ps) {
         Map<LogLevel, PrintStream> newPrintStreams = new HashMap<>(printStreams);
         newPrintStreams.put(level, ps);
 
-        return new Settings(print, newPrintStreams, printSuppressions, enabledLevels, delegates);
+        return new Settings(printingEnabled, newPrintStreams, printSuppressions, enabledLevels, delegates);
     }
 
-    public Settings delegates(Map<String, Logger> delegates) {
-        return new Settings(print, printStreams, printSuppressions, enabledLevels, delegates);
-    }
-
+    /**
+     * Provide a delegate to where all logging will be sent.
+     * None of the supresssion or log level facilites of Settings apply to this delegate; it gets everything.
+     *
+     * This is typically used for injecting a mock object into the logging chain.
+     * One can them make assertions on the mock.
+     * */
     public Settings delegate(Class<?> loggerName, Logger logger) {
         return delegate(loggerName.getName(), logger);
     }
@@ -110,7 +121,12 @@ public class Settings {
         Map<String, Logger> newDelegates = new HashMap<>(delegates);
         newDelegates.put(loggerName, logger);
 
-        return new Settings(print, printStreams, printSuppressions, enabledLevels, newDelegates);
+        return new Settings(printingEnabled, printStreams, printSuppressions, enabledLevels, newDelegates);
+    }
+
+    /** true if the given level is enabled in these settings */
+    public boolean isEnabled(LogLevel level) {
+        return enabledLevels.contains(level);
     }
 
     private static <a,b> Map<a,b> readonlyMap(){
@@ -124,5 +140,8 @@ public class Settings {
     }
     private static <a> List<a> readonlyList(List<a> list){
         return Collections.unmodifiableList(list);
+    }
+    private static <a> Set<a> readonlySet(Set<a> set){
+        return Collections.unmodifiableSet(set);
     }
 }

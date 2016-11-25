@@ -1,11 +1,10 @@
- package slf4jtest;
+package slf4jtest;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationHandler;
@@ -32,7 +31,9 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
         this.settings = new Settings();
     }
 
-    /** check across all loggers */
+    /**
+     * check across all loggers
+     */
     public boolean contains(LogLevel level, String regex) {
         for (TestLogger l : loggers.values()) {
             if (l.contains(level, regex)) return true;
@@ -40,7 +41,9 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
         return false;
     }
 
-    /** check across all loggers */
+    /**
+     * check across all loggers
+     */
     public boolean contains(String regex) {
         for (TestLogger l : loggers.values()) {
             if (l.contains(regex)) return true;
@@ -116,7 +119,6 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
                     if (logFnNameToLogLevel.containsKey(name)) {
                         LogLevel l = logFnNameToLogLevel.get(name);
                         String s = formatLogMessage(method, args);
-
                         LogMessage message = new LogMessage(logName, l, s);
                         extension.record(message);
                     }

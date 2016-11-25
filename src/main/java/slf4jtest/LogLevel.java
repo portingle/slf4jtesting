@@ -1,6 +1,7 @@
 package slf4jtest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class LogLevel {
@@ -48,13 +49,13 @@ public abstract class LogLevel {
         throw new IllegalArgumentException("invalid slf4jtest.LogLevel " + name);
     }
 
-    public static final List<LogLevel> All = new ArrayList<LogLevel>() {{
+    public static final List<LogLevel> All = Collections.unmodifiableList(new ArrayList<LogLevel>() {{
         add(ErrorLevel);
         add(WarnLevel);
         add(InfoLevel);
         add(DebugLevel);
         add(TraceLevel);
-    }};
+    }});
 }
 
 
