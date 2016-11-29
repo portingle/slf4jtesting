@@ -8,14 +8,15 @@ public class StringPrintStream extends PrintStream {
 
     private final ByteArrayOutputStream baos;
 
-    public StringPrintStream(ByteArrayOutputStream baos) {
-        super(baos);
-        this.baos = baos;
-    }
-
     public static StringPrintStream newStream() {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         return new StringPrintStream(baos);
+    }
+
+    /** prefer use of newStream() */
+    public StringPrintStream(ByteArrayOutputStream baos) {
+        super(baos);
+        this.baos = baos;
     }
 
     public String toString() {

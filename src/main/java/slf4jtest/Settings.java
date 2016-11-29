@@ -90,7 +90,7 @@ public class Settings {
      * // setup a buffer to capture output
      * StringPrintStream console = StringPrintStream.newStream();
      *
-     * Settings settings = new Settings().associatePrintStream(LogLevel.ErrorLevel, console);
+     * Settings settings = new Settings().redirectPrintStream(LogLevel.ErrorLevel, console);
      * TestLoggerFactory f = new TestLoggerFactory(settings);
      *
      * // run some code using 'f' that logs 'someString'
@@ -99,7 +99,7 @@ public class Settings {
      * assert(console.contains("someString"));
      *</pre>
      * */
-    public Settings associatePrintStream(LogLevel level, PrintStream ps) {
+    public Settings redirectPrintStream(LogLevel level, PrintStream ps) {
         Map<LogLevel, PrintStream> newPrintStreams = new HashMap<>(printStreams);
         newPrintStreams.put(level, ps);
 

@@ -69,7 +69,7 @@ public class TestLoggerUnitTest extends TestCase {
     public void testPrintStreamCanBeOverridden() {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        Settings settings = new Settings().associatePrintStream(LogLevel.ErrorLevel, ps);
+        Settings settings = new Settings().redirectPrintStream(LogLevel.ErrorLevel, ps);
 
         TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
@@ -82,7 +82,7 @@ public class TestLoggerUnitTest extends TestCase {
     public void testAssociatedPrintingCanBeDisabledButLinesAreStillRecorded() {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        Settings settings = new Settings().printingEnabled(false).associatePrintStream(LogLevel.ErrorLevel, ps);
+        Settings settings = new Settings().printingEnabled(false).redirectPrintStream(LogLevel.ErrorLevel, ps);
 
         TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
@@ -144,7 +144,7 @@ public class TestLoggerUnitTest extends TestCase {
         StringPrintStream ps = StringPrintStream.newStream();
 
         Settings settings = new Settings()
-                .associatePrintStream(LogLevel.ErrorLevel, ps)
+                .redirectPrintStream(LogLevel.ErrorLevel, ps)
                 .suppressPrinting(".*suppressPrinting-me*");
 
         TestLoggerFactory f = new TestLoggerFactory(settings);
