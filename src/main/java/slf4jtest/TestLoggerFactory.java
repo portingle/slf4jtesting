@@ -32,7 +32,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     }
 
     /**
-     * check across all loggers
+     * check if a regex exists in a particular log level output
      */
     public boolean contains(LogLevel level, String regex) {
         for (TestLogger l : loggers.values()) {
@@ -42,7 +42,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     }
 
     /**
-     * check across all loggers
+     * check if a regex exists in any of the loggers output
      */
     public boolean contains(String regex) {
         for (TestLogger l : loggers.values()) {
@@ -51,6 +51,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
         return false;
     }
 
+    /** get or create the logger */
     @Override
     public TestLogger getLogger(String name) {
 
@@ -64,14 +65,17 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
         return newLogger;
     }
 
+    /** get or create the logger */
     public TestLogger getLogger(Class<?> name) {
         return getLogger(name.getName());
     }
 
+    /** verify presence of logger */
     public boolean loggerExists(String name) {
         return loggers.containsKey(name);
     }
 
+    /** verify presence of logger */
     public boolean loggerExists(Class<?> name) {
         return loggers.containsKey(name.getName());
     }

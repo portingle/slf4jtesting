@@ -4,11 +4,15 @@ import java.util.Collection;
 
 interface LoggerExtensions {
 
+    /** access to the underlying detailed LogMessage objects */
     Collection<LogMessage> lines();
 
-    boolean contains(String f);
+    /** verify that a regex matches the logging of some log level level*/
+    boolean contains(String regex);
 
-    boolean contains(LogLevel level, String f);
+    /** verify that a regex matches the logging for a specific log level */
+    boolean contains(LogLevel level, String regex);
 
+    /** erase the captured logging */
     void clear();
 }

@@ -18,8 +18,6 @@ public class Settings {
     // push the call down onto a provided instance
     final Map<String, Logger> delegates;
 
-    static PrintStream NoopPrintStream = new PrintStream(new NoopOutputStream());
-
     private Settings(boolean print,
                      Map<LogLevel, PrintStream> printStreams,
                      List<String> suppressionPatterns,

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/** enum */
 public abstract class LogLevel {
 
     private LogLevel() {

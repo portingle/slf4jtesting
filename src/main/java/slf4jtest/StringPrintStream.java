@@ -8,6 +8,7 @@ public class StringPrintStream extends PrintStream {
 
     private final ByteArrayOutputStream baos;
 
+    /** prefer this approach */
     public static StringPrintStream newStream() {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         return new StringPrintStream(baos);
