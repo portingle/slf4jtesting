@@ -277,3 +277,7 @@ class ChildObject(lf: ILoggerFactory) {
      def aMethodThatLogs(): Unit = logger.info("Bye World!")
  }
 ```
+
+## See Also 
+
+Further examples and explanation can be found in [master/src/test/java/demos](the examples)
