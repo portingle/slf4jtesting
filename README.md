@@ -280,4 +280,4 @@ class ChildObject(lf: ILoggerFactory) {
 
 ## See Also 
 
-Further examples and explanation can be found in [the examples](master/src/test/java/demos)
+Further examples and explanation can be found in [the examples](https://github.com/portingle/slf4jtesting/tree/master/src/test/java/demos)
