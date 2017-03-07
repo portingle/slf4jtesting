@@ -54,7 +54,12 @@ class LoggerExtensionsImpl implements LoggerExtensions {
         return Collections.unmodifiableCollection(rows);
     }
 
+    @Deprecated
     public boolean contains(String regex) {
+        return matches(regex);
+    }
+
+    public boolean matches(String regex) {
         for (LogMessage row : rows) {
             if (row.text.matches(regex)) return true;
         }
@@ -62,6 +67,10 @@ class LoggerExtensionsImpl implements LoggerExtensions {
     }
 
     public boolean contains(LogLevel level, String regex) {
+        return matches(level, regex);
+    }
+
+    public boolean matches(LogLevel level, String regex) {
         for (LogMessage row : rows) {
             if (row.level == level && row.text.matches(regex)) return true;
         }

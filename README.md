@@ -28,16 +28,8 @@ SLF4JTesting differs from some other solutions because it:
 
 ### Setting up
 
-Include the jar as a test dependency.
-
-```
-<dependency>
-  <groupId>com.portingle</groupId>
-  <artifactId>slf4jtesting</artifactId>
-  <version>1.0.0</version>
-  <scope>test</scope>
-</dependency>
-```
+Include the latest version of the jar as a test dependency from 
+[maven central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.portingle%22%20AND%20a%3A%22slf4jtesting%22)
 
 ### Basic Example
 
