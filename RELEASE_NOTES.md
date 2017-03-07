@@ -1,6 +1,6 @@
 # RELEASE NOTES
 
-- 1.0.3
+- 1.1.0
 
   - Upgrade dependency 'org.slf4j:slf4j-api:1.7.5' to "1.7.24"
 
