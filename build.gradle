@@ -22,7 +22,7 @@ buildscript {
 
     dependencies {
         // check maven central for the latest release
-        classpath 'com.portingle:classpath-hell:1.0'
+        classpath 'com.portingle:classpath-hell:1.1'
     }
 }
 
@@ -49,6 +49,14 @@ artifacts {
 
 test {
     testLogging.showStandardStreams = true
+}
+
+classpathHell {
+  resourceExclusions = [
+          "LICENSE.txt",
+          "^META-INF/.*",
+          "org/"
+  ]
 }
 
 build.dependsOn(['checkClasspath'])
