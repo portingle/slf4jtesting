@@ -5,7 +5,8 @@
 
 ## User-specific stuff:
 .idea/
-.build/
+build/
+.gradle/
 
 ## File-based project format:
 *.iws
