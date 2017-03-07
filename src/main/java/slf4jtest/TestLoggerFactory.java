@@ -51,6 +51,15 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
         return false;
     }
 
+    /**
+     * clear all registered loggers
+     */
+    public void clear() {
+        for (TestLogger l : loggers.values()) {
+            l.clear();
+        }
+    }
+
     /** get or create the logger */
     @Override
     public TestLogger getLogger(String name) {
