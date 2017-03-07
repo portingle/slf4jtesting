@@ -276,11 +276,11 @@ class ChildObject(lf: ILoggerFactory) {
 
 Simple - As before, inject the logging implementation on the constructor then wrap the SLF4J logger with scala-logging.
 
-```
+```scala
 class MyService(loggerFactory: ILoggerFactory) {
   private val logger = com.typesafe.scalalogging.Logger(loggerFactory.getLogger(classOf[MyService].getName))
 
-  logger.info(....)
+  logger.info("scala optimised logging !!")
 }
 ```
 
