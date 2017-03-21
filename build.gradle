@@ -68,8 +68,9 @@ task wrapper(type: Wrapper) {
 
 // TODO ....
 // consider using the Gradle Nexus Staging Maven as this avoids need to use the NExus gui to close and release the stage artifact.
-// use : ./gradlew -PENABLE_RELEASE uploadArchives
-if (gradle.hasProperty("ENABLE_RELEASE")) {
+// if the sonatypeUsername is provided by the gradle properties then a release is enabled
+
+if (project.properties.containsKey("sonatypeUsername")) {
     apply plugin: 'signing'
 
     signing {
