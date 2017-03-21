@@ -68,11 +68,7 @@ task wrapper(type: Wrapper) {
 
 // TODO ....
 // consider using the Gradle Nexus Staging Maven as this avoids need to use the NExus gui to close and release the stage artifact.
-
-
-
-// // UNCOMMENT THIS SECTION AND USE ONLY FROM THE COMMAND LINE OTHERWISE TRAVIS ABORTS
-//
+// use : ./gradlew -PENABLE_RELEASE uploadArchives
 if (gradle.hasProperty("ENABLE_RELEASE")) {
     apply plugin: 'signing'
 
