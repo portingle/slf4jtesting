@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import slf4jtest.*;
 
@@ -15,11 +16,32 @@ public class Examples {
      * trivial demo of calling the logging functions on a logger and verifying what was logged.
      */
     @Test
-    public void demoConsoleLogging() throws Exception {
+    public void demoConsoleLoggingUsingConstructor() throws Exception {
 
         Settings cfg = new Settings()
                 .enableAll(); // necessary as by default only ErrorLevel is enabled
         TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+
+        TestLogger logger = loggerFactory.getLogger("MyLogger");
+
+        // expect to see some console logging
+        logger.info("Hello World!");
+
+        // verification - the TestLogger instance will have collected all the enabled logging was sent to the loggers
+        TestLogger testLogger = loggerFactory.getLogger("MyLogger");
+        Assert.assertTrue(testLogger.matches("Hello World!"));
+    }
+
+
+    /**
+     * trivial demo of calling the logging functions on a logger and verifying what was logged.
+     */
+    @Test
+    public void demoConsoleLoggingUsingBuilder() throws Exception {
+
+        TestLoggerFactory loggerFactory = Settings.instance()
+                .enableAll() // necessary as by default only ErrorLevel is enabled
+                .buildLogging();
 
         TestLogger logger = loggerFactory.getLogger("MyLogger");
 
@@ -50,10 +72,9 @@ public class Examples {
 
         try {
             // configure the logging impl to suppress some patterns of logging output
-            Settings cfg = new Settings()
-                    .suppressPrinting(".*Pattern to suppress.*");
-
-            TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+            TestLoggerFactory loggerFactory  = Settings.instance()
+                    .suppressPrinting(".*Pattern to suppress.*")
+                    .buildLogging();
 
             TestLogger logger = loggerFactory.getLogger(this.getClass());
 
@@ -82,8 +103,7 @@ public class Examples {
         Logger mockLogger = Mockito.mock(Logger.class);
 
         // setup the logging impl so that logging to the logger "MyLogger" is directed at the mock
-        Settings cfg = new Settings().delegate("MyLogger", mockLogger);
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+        TestLoggerFactory loggerFactory = new Settings().delegate("MyLogger", mockLogger).buildLogging();
 
         // do some work
         TestLogger logger = loggerFactory.getLogger("MyLogger");
@@ -115,12 +135,11 @@ public class Examples {
 
         try {
             // capture info logging into a string stream so we can later verify what the print streams got sent
-            Settings cfg = new Settings()
+            TestLoggerFactory loggerFactory = Settings.instance()
                     .redirectPrintStream(LogLevel.ErrorLevel, System.out)
                     .redirectPrintStream(LogLevel.InfoLevel, System.err)
-                    .enable(LogLevel.InfoLevel);
-
-            TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+                    .enable(LogLevel.InfoLevel)
+                    .buildLogging();
 
             TestLogger logger = loggerFactory.getLogger(this.getClass());
             logger.info("Info should be printed to Err stream");

@@ -16,6 +16,6 @@ public class ExampleUnitTest {
         sut.doLogging();
 
         TestLogger logger = loggerFactory.getLogger(Example.class);
-        assertTrue(logger.contains(".*Hello.*"));
+        assertTrue(logger.matches(".*Hello.*"));
     }
 }

@@ -50,6 +50,14 @@ public class Settings {
         delegates = readonlyMap();
     }
 
+    public static Settings instance() {
+        return new Settings();
+    }
+
+    public TestLoggerFactory buildLogging() {
+        return new TestLoggerFactory(this);
+    }
+
     public Settings printingEnabled(boolean print) {
         return new Settings(print, printStreams, printSuppressions, enabledLevels, delegates);
     }
