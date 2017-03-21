@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import slf4jtest.*;
 
@@ -29,7 +28,7 @@ public class Examples {
 
         // verification - the TestLogger instance will have collected all the enabled logging was sent to the loggers
         TestLogger testLogger = loggerFactory.getLogger("MyLogger");
-        Assert.assertTrue(testLogger.contains("Hello World!"));
+        Assert.assertTrue(testLogger.matches("Hello World!"));
     }
 
     /**

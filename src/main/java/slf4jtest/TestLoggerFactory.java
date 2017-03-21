@@ -11,12 +11,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
-public class TestLoggerFactory implements LoggerFactoryExtensions {
+public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensions {
     private final long startTime = System.currentTimeMillis();
 
     private final Settings settings;
@@ -32,11 +32,68 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     }
 
     /**
-     * check if a regex exists in a particular log level output
+     * check if a regex exists in a particular log level output.
+     * @deprecated "use matches(..."
      */
     public boolean contains(LogLevel level, String regex) {
         for (TestLogger l : loggers.values()) {
-            if (l.contains(level, regex)) return true;
+            if (l.contains(level, regex))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * check if a regex exists in any of the loggers output
+     * @deprecated "use matches(..."
+     */
+    public boolean contains(String regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.contains(regex))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * check if a regex exists in a particular log level output
+     */
+    public boolean matches(LogLevel level, String regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.matches(level, regex))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<LogMessage> lines() {
+        ArrayList<LogMessage> lm = new ArrayList<>();
+
+        for (TestLogger l : loggers.values()) {
+            lm.addAll(l.lines());
+        }
+        return Collections.unmodifiableCollection(lm);
+    }
+
+    /**
+     * check if a regex exists in any of the loggers output
+     */
+    public boolean matches(String regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.matches(regex))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * check if a regex exists in a particular log level output
+     */
+    public boolean matches(LogLevel level, Pattern regex) {
+        for (TestLogger l : loggers.values()) {
+            if (l.matches(level, regex))
+                return true;
         }
         return false;
     }
@@ -44,9 +101,10 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     /**
      * check if a regex exists in any of the loggers output
      */
-    public boolean contains(String regex) {
+    public boolean matches(Pattern regex) {
         for (TestLogger l : loggers.values()) {
-            if (l.contains(regex)) return true;
+            if (l.matches(regex))
+                return true;
         }
         return false;
     }
@@ -65,7 +123,8 @@ public class TestLoggerFactory implements LoggerFactoryExtensions {
     public TestLogger getLogger(String name) {
 
         TestLogger cached = loggers.get(name);
-        if (cached != null) return cached;
+        if (cached != null)
+            return cached;
 
         TestLogger newLogger = createMock(settings, name);
 

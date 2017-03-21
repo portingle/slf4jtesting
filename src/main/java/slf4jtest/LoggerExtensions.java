@@ -1,6 +1,7 @@
 package slf4jtest;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 interface LoggerExtensions {
 
@@ -10,8 +11,14 @@ interface LoggerExtensions {
     /** verify that a regex matches the logging of some log level level*/
     boolean matches(String regex);
 
+    /** verify that a regex matches the logging of some log level level*/
+    boolean matches(Pattern regex);
+
     /** verify that a regex matches the logging for a specific log level */
     boolean matches(LogLevel level, String regex);
+
+    /** verify that a regex matches the logging for a specific log level */
+    boolean matches(LogLevel level, Pattern regex);
 
     /** verify that a regex matches the logging of some log level level.
      * @deprecated use matches

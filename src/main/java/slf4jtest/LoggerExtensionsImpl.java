@@ -5,18 +5,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Pattern;
 
 class LoggerExtensionsImpl implements LoggerExtensions {
     private final Settings settings;
     private final long startTime;
     private final Queue<LogMessage> rows = new ConcurrentLinkedQueue<>();
 
-    public LoggerExtensionsImpl(Settings settings, long startTime) {
+    LoggerExtensionsImpl(Settings settings, long startTime) {
         this.settings = settings;
         this.startTime = startTime;
     }
 
-    public void record(LogMessage message) {
+    void record(LogMessage message) {
         doLogging(message);
         doConsole(message);
     }
@@ -34,7 +35,7 @@ class LoggerExtensionsImpl implements LoggerExtensions {
         }
     }
 
-    public String layout(LogMessage message) {
+    private String layout(LogMessage message) {
         long delta = message.timeStamp - startTime;
         return delta +
                 " " + message.level +
@@ -45,7 +46,8 @@ class LoggerExtensionsImpl implements LoggerExtensions {
 
     private boolean isPrintSuppressed(String msg) {
         for (String regex : settings.printSuppressions) {
-            if (msg.matches(regex)) return true;
+            if (msg.matches(regex))
+                return true;
         }
         return false;
     }
@@ -54,25 +56,51 @@ class LoggerExtensionsImpl implements LoggerExtensions {
         return Collections.unmodifiableCollection(rows);
     }
 
-    @Deprecated
+    /*
+    * @deprecated "use matches(..)
+    */
     public boolean contains(String regex) {
         return matches(regex);
     }
 
     public boolean matches(String regex) {
         for (LogMessage row : rows) {
-            if (row.text.matches(regex)) return true;
+            if (row.text.matches(regex))
+                return true;
         }
         return false;
     }
 
+    public boolean matches(Pattern regex) {
+        for (LogMessage row : rows) {
+            if (regex.matcher(row.text).matches())
+                return true;
+        }
+        return false;
+    }
+
+    /*
+    * @deprecated "use matches(..)
+    */
     public boolean contains(LogLevel level, String regex) {
         return matches(level, regex);
     }
 
     public boolean matches(LogLevel level, String regex) {
         for (LogMessage row : rows) {
-            if (row.level == level && row.text.matches(regex)) return true;
+            if (row.level == level)
+                if (row.text.matches(regex))
+                    return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean matches(LogLevel level, Pattern regex) {
+        for (LogMessage row : rows) {
+            if (row.level == level)
+                if (regex.matcher(row.text).matches())
+                    return true;
         }
         return false;
     }
