@@ -1,5 +1,5 @@
 group 'com.portingle'
-version '1.1.0'
+version '1.1.1'
 
 apply plugin: 'maven'
 
@@ -73,49 +73,53 @@ task wrapper(type: Wrapper) {
 
 // // UNCOMMENT THIS SECTION AND USE ONLY FROM THE COMMAND LINE OTHERWISE TRAVIS ABORTS
 //
-apply plugin: 'signing'
+if (gradle.hasProperty("ENABLE_RELEASE")) {
+    apply plugin: 'signing'
 
-signing {
-    sign configurations.archives
-}
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+    signing {
+        sign configurations.archives
+    }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            pom.project {
-                name 'slf4jtesting'
-                packaging 'jar'
-
-                // optionally artifactId can be defined here
-                description 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
-                url 'https://github.com/portingle/slf4jtesting'
-
-                scm {
-                    connection 'scm:git@github.com:portingle/slf4jtesting.git'
-                    developerConnection 'scm:git@github.com:portingle/slf4jtesting.git'
-                    url 'scm:git@github.com:portingle/slf4jtesting.git'
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
                 }
 
-                licenses {
-                    license {
-                        name 'The MIT Licence (MIT)'
-                        url 'https://opensource.org/licenses/MIT'
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                pom.project {
+                    name 'slf4jtesting'
+                    packaging 'jar'
+
+                    // optionally artifactId can be defined here
+                    description 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
+                    url 'https://github.com/portingle/slf4jtesting'
+
+                    scm {
+                        connection 'scm:git@github.com:portingle/slf4jtesting.git'
+                        developerConnection 'scm:git@github.com:portingle/slf4jtesting.git'
+                        url 'scm:git@github.com:portingle/slf4jtesting.git'
                     }
-                }
 
-                developers {
-                    developer {
-                        id 'Johnlon'
-                        name 'John Lonergan'
+                    licenses {
+                        license {
+                            name 'The MIT Licence (MIT)'
+                            url 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'Johnlon'
+                            name 'John Lonergan'
+                        }
                     }
                 }
             }

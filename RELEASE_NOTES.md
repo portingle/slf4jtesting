@@ -1,5 +1,11 @@
 # RELEASE NOTES
 
+- 1.1.1
+
+  - LogMessage is now public
+  - matches() now supports Pattern allowing more powerful pattern matches
+  - TestLoggerFactory now extends TestLoggerExtensions as a convenience for matching across all loggers. 
+
 - 1.1.0
 
   - Upgrade dependency 'org.slf4j:slf4j-api:1.7.5' to "1.7.24"
