@@ -87,10 +87,16 @@ public class Example1UnitTest {
         sut.aMethodThatLogs();
 
         TestLogger logger = loggerFactory.getLogger(Example1.class.getName());
-        assertTrue(logger.contains(".*Hello.*"));
+        assertTrue(logger.matches(".*Hello.*"));
     }
 }
 ```
+
+## See Also 
+
+Further examples and explanation can be found in [the examples](https://github.com/portingle/slf4jtesting/tree/master/src/test/java/demos).
+These are phrased as tests and are a good place to look for ideas.
+
 
 ## Motivation
 
@@ -181,7 +187,7 @@ It is possible to make some assertions about what was logged by using methods pr
 
 ```
 TestLogger logger = loggerFactory.getLogger(Example1.class.getName());
-assertTrue(logger.contains(".*Hello.*"));
+assertTrue(logger.matches(".*Hello.*"));
 ```
 
 ### Mocking
@@ -225,7 +231,6 @@ TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
 
 Logger logger = loggerFactory.getLogger("name");
 
-
 logger.error("Pattern to suppress - will not be printed");
 logger.error("This will be printed");
 ```
@@ -241,7 +246,7 @@ import org.slf4j.Logger
 class Example1(lf:ILoggerFactory = LoggerFactory.getIloggerFactory()) {
     private val logger = lf.getLogger(classOf[Example1].getName())
 
-    def aMethodThatLogs():Unit = logger.info("Hello World!")
+    def aMethodThatLogs(): Unit = logger.info("Hello World!")
 }
  
 ```
@@ -283,7 +288,3 @@ class MyService(loggerFactory: ILoggerFactory) {
   logger.info("scala optimised logging !!")
 }
 ```
-
-## See Also 
-
-Further examples and explanation can be found in [the examples](https://github.com/portingle/slf4jtesting/tree/master/src/test/java/demos)
