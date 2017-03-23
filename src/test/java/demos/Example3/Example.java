@@ -60,5 +60,41 @@ public class Example {
         }
         assert (found);
     }
-}
 
+    @Test
+    public void testLogMessageMatchingUsingPredicate() {
+
+        // enable info logging because only error is enabled by default
+        Settings settings = new Settings().enable(LogLevel.InfoLevel);
+        TestLoggerFactory loggerFactory = new TestLoggerFactory(settings);
+        TestLogger logger = loggerFactory.getLogger(this.getClass());
+
+        logger.info("Line1" + System.lineSeparator() + "Line2");
+
+        final Pattern pattern = Pattern.compile("Line1.*", Pattern.DOTALL);
+
+        logger.assertMatches(new Predicate<LogMessage>() {
+            public boolean matches(LogMessage row) {
+                return pattern.matcher(row.text).matches() && row.level == LogLevel.InfoLevel;
+            }
+        });
+
+        try {
+            final Pattern nonMatch = Pattern.compile("NOTGOOD");
+            logger.assertMatches(new Predicate<LogMessage>() {
+                public boolean matches(LogMessage row) {
+                    return nonMatch.matcher(row.text).matches();
+                }
+
+                @Override
+                public String toString() {
+                    return nonMatch.toString();
+                }
+            });
+
+            throw new RuntimeException("ought to have failed");
+        } catch (AssertionError ex) {
+            assert(ex.getMessage().equals("did not match NOTGOOD"));
+        }
+    }
+}

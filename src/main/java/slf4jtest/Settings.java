@@ -91,7 +91,7 @@ public class Settings {
         return new Settings(printingEnabled, printStreams, printSuppressions, newLevels, delegates);
     }
 
-    /**
+    /*
      * <pre>
      * // setup a buffer to capture output
      * StringPrintStream console = StringPrintStream.newStream();
@@ -112,9 +112,9 @@ public class Settings {
         return new Settings(printingEnabled, newPrintStreams, printSuppressions, enabledLevels, delegates);
     }
 
-    /**
+    /*
      * Provide a delegate to where all logging will be sent.
-     * None of the supresssion or log level facilites of Settings apply to this delegate; it gets everything.
+     * None of the supression or log level facilites of Settings apply to this delegate; it gets everything.
      *
      * This is typically used for injecting a mock object into the logging chain.
      * One can them make assertions on the mock.
@@ -130,7 +130,7 @@ public class Settings {
         return new Settings(printingEnabled, printStreams, printSuppressions, enabledLevels, newDelegates);
     }
 
-    /** true if the given level is enabled in these settings */
+    /* true if the given level is enabled in these settings */
     public boolean isEnabled(LogLevel level) {
         return enabledLevels.contains(level);
     }

@@ -33,6 +33,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
 
     /**
      * check if a regex exists in a particular log level output.
+     *
      * @deprecated "use matches(..."
      */
     public boolean contains(LogLevel level, String regex) {
@@ -45,6 +46,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
 
     /**
      * check if a regex exists in any of the loggers output
+     *
      * @deprecated "use matches(..."
      */
     public boolean contains(String regex) {
@@ -98,12 +100,30 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
         return false;
     }
 
+    @Override
+    public boolean assertMatches(Predicate<LogMessage> predicate) throws Error {
+        boolean matched = matches(predicate);
+        if (!matched) {
+            throw new AssertionError("did not match " + predicate.toString());
+        }
+        return true;
+    }
+
     /**
      * check if a regex exists in any of the loggers output
      */
     public boolean matches(Pattern regex) {
         for (TestLogger l : loggers.values()) {
             if (l.matches(regex))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean matches(Predicate<LogMessage> predicate) {
+        for (TestLogger l : loggers.values()) {
+            if (l.matches(predicate))
                 return true;
         }
         return false;
@@ -118,7 +138,9 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
         }
     }
 
-    /** get or create the logger */
+    /**
+     * get or create the logger
+     */
     @Override
     public TestLogger getLogger(String name) {
 
@@ -133,17 +155,23 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
         return newLogger;
     }
 
-    /** get or create the logger */
+    /**
+     * get or create the logger
+     */
     public TestLogger getLogger(Class<?> name) {
         return getLogger(name.getName());
     }
 
-    /** verify presence of logger */
+    /**
+     * verify presence of logger
+     */
     public boolean loggerExists(String name) {
         return loggers.containsKey(name);
     }
 
-    /** verify presence of logger */
+    /**
+     * verify presence of logger
+     */
     public boolean loggerExists(Class<?> name) {
         return loggers.containsKey(name.getName());
     }
@@ -175,7 +203,11 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
 
                 Class<?> declaringClass = method.getDeclaringClass();
                 if (declaringClass == LoggerExtensions.class) {
-                    return method.invoke(extension, args);
+                    try {
+                        return method.invoke(extension, args);
+                    } catch (InvocationTargetException ite) {
+                        throw ite.getCause();
+                    }
                 }
 
                 try {
@@ -202,7 +234,7 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
             }
 
             private void callDelegate(Method method, Object[] args) throws IllegalAccessException, InvocationTargetException {
-                /** call the same method on the delegate.
+                /* call the same method on the delegate.
                  typical usage would be to allow the user to supply a Mockito/EasyMock
                  as a delegate so that they can do some assertions or whatever.
                  thus ignore return value as this expected to be a verification mock.
