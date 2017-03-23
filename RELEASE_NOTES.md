@@ -1,5 +1,9 @@
 # RELEASE NOTES
 
+- 1.1.2
+
+  - Added matching against Predicate
+
 - 1.1.1
 
   - LogMessage is now public
