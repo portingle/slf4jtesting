@@ -1,5 +1,12 @@
 # RELEASE NOTES
 
+- 1.1.3
+
+  - added StringPrintStream.clear()
+  - for convenience "matches(String)" now uses Pattern.DOTALL style matching as this is typically what folk want
+  - use "match(Pattern)" if you want to fine tune
+  - whereas "contains(String)" methods use "String.contains" behaviour
+
 - 1.1.2
 
   - Added matching against Predicate
