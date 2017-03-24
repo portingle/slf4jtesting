@@ -154,7 +154,7 @@ public class TestLoggerUnitTest extends TestCase {
         TestLogger log = f.getLogger("john");
 
         String ShouldBeLogged = "printme";
-        String ShouldBePrintSuppressed = "suppressPrinting-me";
+        String ShouldBePrintSuppressed = "suppressPrinting-me <<" + System.lineSeparator() + " dont print";
 
         log.error(ShouldBeLogged);
         log.error(ShouldBePrintSuppressed);

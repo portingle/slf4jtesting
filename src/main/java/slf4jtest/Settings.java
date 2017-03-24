@@ -63,21 +63,22 @@ public class Settings {
         return new Settings(print, printStreams, printSuppressions, enabledLevels, delegates);
     }
 
-    /* do not log anything matching this pattern.
-     * matches using Pattern.DOTALL
+    /* filters what gets written to the output streams (eg the console or by redirectPrintStream).
+     * matches by comparing the log text using Pattern.DOTALL style match.
      */
     public Settings suppressPrinting(String regex) {
         Pattern pat = Pattern.compile(regex, Pattern.DOTALL);
         Predicate<LogMessage> pred = new Predicate<LogMessage>() {
             @Override
             public boolean matches(LogMessage row) {
-                return pat.matcher(row.toString()).matches();
+                return pat.matcher(row.text).matches();
             }
         };
         return suppressPrinting(pred);
     }
 
-    /* do not log anything matching this pattern. */
+    /* filters what gets written to the output streams (eg the console or by redirectPrintStream)
+    */
     public Settings suppressPrinting(Pattern compile) {
         Predicate<LogMessage> pred = new Predicate<LogMessage>() {
             @Override
@@ -121,14 +122,14 @@ public class Settings {
     /*
      * <pre>
      * // setup a buffer to capture output
-     * StringPrintStream console = StringPrintStream.newStream();
+     * StringPrintStream dummyConsole = StringPrintStream.newStream();
      *
-     * TestLoggerFactory f = Settings.instance().redirectPrintStream(LogLevel.ErrorLevel, console).buildLogging();
+     * TestLoggerFactory f = Settings.instance().redirectPrintStream(LogLevel.ErrorLevel, dummyConsole).buildLogging();
      *
      * // run some code using 'f' that logs 'someString'
      *
      * // assert logging was emitted
-     * assert(console.contains("someString"));
+     * assert(dummyConsole.contains("someString"));
      *</pre>
      * */
     public Settings redirectPrintStream(LogLevel level, PrintStream ps) {
