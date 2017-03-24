@@ -9,7 +9,7 @@ import java.io.PrintStream;
 public class TestLoggerUnitTest extends TestCase {
 
     public void testErrorsGotoStderr() {
-        Settings settings = new Settings();
+        Settings settings = Settings.instance();
         assertTrue(settings.printStreams.get(LogLevel.ErrorLevel) == System.err);
         assertTrue(settings.printStreams.get(LogLevel.WarnLevel) == System.out);
         assertTrue(settings.printStreams.get(LogLevel.InfoLevel) == System.out);
@@ -18,7 +18,7 @@ public class TestLoggerUnitTest extends TestCase {
     }
 
     public void testByDefaultOnlyErrorIsEnabled() {
-        Settings settings = new Settings();
+        Settings settings = Settings.instance();
         assertTrue(settings.isEnabled(LogLevel.ErrorLevel));
         assertTrue(!settings.isEnabled(LogLevel.WarnLevel));
         assertTrue(!settings.isEnabled(LogLevel.InfoLevel));
@@ -27,7 +27,7 @@ public class TestLoggerUnitTest extends TestCase {
     }
 
     public void testCanEnableAll() {
-        Settings settings = new Settings().enableAll();
+        Settings settings = Settings.instance().enableAll();
         assertTrue(settings.isEnabled(LogLevel.ErrorLevel));
         assertTrue(settings.isEnabled(LogLevel.WarnLevel));
         assertTrue(settings.isEnabled(LogLevel.InfoLevel));
@@ -36,7 +36,7 @@ public class TestLoggerUnitTest extends TestCase {
     }
 
     public void testCanDisableAll() {
-        Settings settings = new Settings().enableAll().disableAll();
+        Settings settings = Settings.instance().enableAll().disableAll();
         assertTrue(!settings.isEnabled(LogLevel.ErrorLevel));
         assertTrue(!settings.isEnabled(LogLevel.WarnLevel));
         assertTrue(!settings.isEnabled(LogLevel.InfoLevel));
@@ -61,6 +61,12 @@ public class TestLoggerUnitTest extends TestCase {
 
             assert (log.contains("anError"));
             assert (!log.contains("someInfo"));
+
+            assert (console.matches(".*anError.*"));
+            assert (!console.matches(".*someInfo.*"));
+
+            assert (log.matches(".*anError.*"));
+            assert (!log.matches(".*someInfo.*"));
         } finally {
             System.setErr(old);
         }
@@ -69,9 +75,9 @@ public class TestLoggerUnitTest extends TestCase {
     public void testPrintStreamCanBeOverridden() {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        Settings settings = new Settings().redirectPrintStream(LogLevel.ErrorLevel, ps);
+        TestLoggerFactory f = Settings.instance()
+                .redirectPrintStream(LogLevel.ErrorLevel, ps).buildLogging();
 
-        TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
         log.error("anError");
 
@@ -82,10 +88,11 @@ public class TestLoggerUnitTest extends TestCase {
     public void testAssociatedPrintingCanBeDisabledButLinesAreStillRecorded() {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        Settings settings = new Settings().printingEnabled(false).redirectPrintStream(LogLevel.ErrorLevel, ps);
+        TestLoggerFactory loggerFactory = Settings.instance().
+                printingEnabled(false).redirectPrintStream(LogLevel.ErrorLevel, ps).
+                buildLogging();
 
-        TestLoggerFactory f = new TestLoggerFactory(settings);
-        TestLogger log = f.getLogger("john");
+        TestLogger log = loggerFactory.getLogger("john");
 
         log.error("anError");
 
@@ -99,8 +106,7 @@ public class TestLoggerUnitTest extends TestCase {
         System.setErr(console); // << have to interfere with the system for this test
 
         try {
-            Settings s = new Settings().printingEnabled(false);
-            TestLoggerFactory f = new TestLoggerFactory(s);
+            TestLoggerFactory f  = Settings.instance().printingEnabled(false).buildLogging();
             TestLogger log = f.getLogger("john");
 
             log.error("anError");
@@ -113,29 +119,26 @@ public class TestLoggerUnitTest extends TestCase {
     }
 
     public void testErrorIsEnabledByDefault() {
-        Settings settings = new Settings();
+        Settings settings = Settings.instance();
         TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
         assert (log.isErrorEnabled());
     }
 
     public void testErrorCanBeDisabled() {
-        Settings settings = new Settings().disable(LogLevel.ErrorLevel);
-        TestLoggerFactory f = new TestLoggerFactory(settings);
+        TestLoggerFactory f = Settings.instance().disable(LogLevel.ErrorLevel).buildLogging();
         TestLogger log = f.getLogger("john");
         assert (!log.isErrorEnabled());
     }
 
     public void testWarnIsDisabledByDefault() {
-        Settings settings = new Settings();
-        TestLoggerFactory f = new TestLoggerFactory(settings);
+        TestLoggerFactory f = Settings.instance().buildLogging();
         TestLogger log = f.getLogger("john");
         assert (!log.isWarnEnabled());
     }
 
     public void testWarnCanBeEnabled() {
-        Settings settings = new Settings().enable(LogLevel.WarnLevel);
-        TestLoggerFactory f = new TestLoggerFactory(settings);
+        TestLoggerFactory f = Settings.instance().enable(LogLevel.WarnLevel).buildLogging();
         TestLogger log = f.getLogger("john");
         assert (log.isErrorEnabled());
     }
@@ -143,11 +146,11 @@ public class TestLoggerUnitTest extends TestCase {
     public void testPrintSuppressionsAffectsPrintStreamAndNotLogging() {
         StringPrintStream ps = StringPrintStream.newStream();
 
-        Settings settings = new Settings()
+        TestLoggerFactory f = Settings.instance()
                 .redirectPrintStream(LogLevel.ErrorLevel, ps)
-                .suppressPrinting(".*suppressPrinting-me*");
+                .suppressPrinting(".*suppressPrinting-me.*")
+                .buildLogging();
 
-        TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
 
         String ShouldBeLogged = "printme";
@@ -165,11 +168,11 @@ public class TestLoggerUnitTest extends TestCase {
 
     public void testDelegateToAMockingLibrary() {
         Logger mockLogger = Mockito.mock(Logger.class);
-        Settings settings = new Settings()
+        TestLoggerFactory f = Settings.instance()
                 .printingEnabled(false)
-                .delegate("john", mockLogger);
+                .delegate("john", mockLogger)
+                .buildLogging();
 
-        TestLoggerFactory f = new TestLoggerFactory(settings);
         TestLogger log = f.getLogger("john");
 
         log.error("anError");

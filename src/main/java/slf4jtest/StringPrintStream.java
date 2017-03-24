@@ -25,15 +25,19 @@ public class StringPrintStream extends PrintStream {
         return baos.toString();
     }
 
-    public boolean contains(String sub) {
-        return toString().contains(sub);
+    public boolean contains(String substring) {
+        return toString().contains(substring);
     }
 
-    public boolean matches(String sub) {
-        return toString().matches(sub);
+    /* does a Pattern.DOTALL match */
+    public boolean matches(String regex) {
+        Pattern pat = Pattern.compile(regex, Pattern.DOTALL);
+        return matches(pat);
     }
 
     public boolean matches(Pattern sub) {
         return sub.matcher(toString()).matches();
     }
+
+    public void clear() { baos.reset();}
 }

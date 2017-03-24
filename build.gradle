@@ -8,7 +8,7 @@ archivesBaseName = "slf4jtesting"
 apply plugin: 'java'
 apply plugin: 'com.portingle.classpathHell'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

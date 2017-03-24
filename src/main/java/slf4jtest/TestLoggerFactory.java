@@ -33,25 +33,23 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
 
     /**
      * check if a regex exists in a particular log level output.
-     *
-     * @deprecated "use matches(..."
      */
-    public boolean contains(LogLevel level, String regex) {
+    public boolean contains(LogLevel level, String substring) {
         for (TestLogger l : loggers.values()) {
-            if (l.contains(level, regex))
+            if (l.contains(level, substring))
                 return true;
         }
         return false;
     }
 
     /**
-     * check if a regex exists in any of the loggers output
+     * check if a substring exists within any of the loggers output
      *
      * @deprecated "use matches(..."
      */
-    public boolean contains(String regex) {
+    public boolean contains(String substring) {
         for (TestLogger l : loggers.values()) {
-            if (l.contains(regex))
+            if (l.matches(substring))
                 return true;
         }
         return false;
@@ -79,7 +77,8 @@ public class TestLoggerFactory implements LoggerFactoryExtensions, LoggerExtensi
     }
 
     /**
-     * check if a regex exists in any of the loggers output
+     * check if a regex exists in any of the loggers output.
+     * matches using Pattern.DOTALL
      */
     public boolean matches(String regex) {
         for (TestLogger l : loggers.values()) {

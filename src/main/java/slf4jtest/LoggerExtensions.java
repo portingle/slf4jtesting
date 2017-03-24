@@ -11,13 +11,17 @@ interface LoggerExtensions {
     /* verify that a regex matches the logging of some log level level*/
     boolean matches(Predicate<LogMessage> regex);
 
-    /* verify that a regex matches the logging of some log level level*/
+    /* verify that a regex matches the logging of some log level level.
+    * matches using Pattern.DOTALL
+    */
     boolean matches(String regex);
 
     /* verify that a regex matches the logging of some log level level*/
     boolean matches(Pattern regex);
 
-    /* verify that a regex matches the logging for a specific log level */
+    /* verify that a regex matches the logging for a specific log level
+    * matches using Pattern.DOTALL
+    * */
     boolean matches(LogLevel level, String regex);
 
     /* verify that a regex matches the logging for a specific log level */
@@ -26,15 +30,15 @@ interface LoggerExtensions {
     /* verify that a predicate matches */
     boolean assertMatches(Predicate<LogMessage> predicate) throws Error;
 
-    /* verify that a regex matches the logging of some log level level.
-     * @deprecated use matches
+    /* verify that the logging for some log level contains the substring.
+     * does a String.contains(String) style comparison
      */
-    boolean contains(String regex);
+    boolean contains(String substring);
 
-    /* verify that a regex matches the logging for a specific log level.
-     *  @deprecated use matches
+    /* verify that the logging for a specific log level contains the substring.
+     * does a String.contains(String) style comparison
      */
-    boolean contains(LogLevel level, String regex);
+    boolean contains(LogLevel level, String substring);
 
     /* erase the captured logging */
     void clear();

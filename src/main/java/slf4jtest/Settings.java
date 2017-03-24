@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Settings {
     // controls whether printing to console occurs
@@ -11,7 +12,7 @@ public class Settings {
     // override console print streams per log level
     final Map<LogLevel, PrintStream> printStreams;
     // suppressPrinting certain regexes from printing
-    final List<String> printSuppressions;
+    final List<Predicate<LogMessage>> printSuppressions;
 
     // determine value of isXXXXEnabled
     final Set<LogLevel> enabledLevels;
@@ -20,7 +21,7 @@ public class Settings {
 
     private Settings(boolean print,
                      Map<LogLevel, PrintStream> printStreams,
-                     List<String> suppressionPatterns,
+                     List<Predicate<LogMessage>> suppressionPatterns,
                      Set<LogLevel> enabledLevels,
                      Map<String, Logger> delegates) {
         this.printingEnabled = print;
@@ -62,9 +63,35 @@ public class Settings {
         return new Settings(print, printStreams, printSuppressions, enabledLevels, delegates);
     }
 
+    /* do not log anything matching this pattern.
+     * matches using Pattern.DOTALL
+     */
     public Settings suppressPrinting(String regex) {
-        List<String> newSuppressions = new ArrayList<>(printSuppressions);
-        newSuppressions.add(regex);
+        Pattern pat = Pattern.compile(regex, Pattern.DOTALL);
+        Predicate<LogMessage> pred = new Predicate<LogMessage>() {
+            @Override
+            public boolean matches(LogMessage row) {
+                return pat.matcher(row.toString()).matches();
+            }
+        };
+        return suppressPrinting(pred);
+    }
+
+    /* do not log anything matching this pattern. */
+    public Settings suppressPrinting(Pattern compile) {
+        Predicate<LogMessage> pred = new Predicate<LogMessage>() {
+            @Override
+            public boolean matches(LogMessage row) {
+                return compile.matcher(row.toString()).matches();
+            }
+        };
+        return suppressPrinting(pred);
+    }
+
+    public Settings suppressPrinting(Predicate<LogMessage> pred) {
+        List<Predicate<LogMessage>> newSuppressions = new ArrayList<>(printSuppressions);
+
+        newSuppressions.add(pred);
 
         return new Settings(printingEnabled, printStreams, newSuppressions, enabledLevels, delegates);
     }
@@ -96,8 +123,7 @@ public class Settings {
      * // setup a buffer to capture output
      * StringPrintStream console = StringPrintStream.newStream();
      *
-     * Settings settings = new Settings().redirectPrintStream(LogLevel.ErrorLevel, console);
-     * TestLoggerFactory f = new TestLoggerFactory(settings);
+     * TestLoggerFactory f = Settings.instance().redirectPrintStream(LogLevel.ErrorLevel, console).buildLogging();
      *
      * // run some code using 'f' that logs 'someString'
      *

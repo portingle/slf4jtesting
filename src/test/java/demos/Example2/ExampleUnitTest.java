@@ -13,16 +13,16 @@ public class ExampleUnitTest {
     public void testDemoAssemblyInjection() {
 
         // enable info logging because only error is enabled by default
-        Settings settings = new Settings().enable(LogLevel.InfoLevel);
-        TestLoggerFactory loggingImpl = new TestLoggerFactory(settings);
+        TestLoggerFactory loggingImpl = Settings.instance().
+                enable(LogLevel.InfoLevel).buildLogging();
 
         // create the Assembly component along with its internal internalDetail instance
         Example assembly = new Example(loggingImpl);
         assembly.doSomeInfoLogging();
 
         // check the Info logging
-        assert (loggingImpl.contains("Hello from Assembly"));
-        assert (loggingImpl.contains("Hello from InternalSubcomponent"));
+        assert (loggingImpl.matches("Hello from Assembly"));
+        assert (loggingImpl.matches("Hello from InternalSubcomponent"));
     }
 }
 

@@ -205,8 +205,9 @@ public class MockingExampleUnitTest {
     public void testAMethodThatLogsWithAMock() throws Exception {
         Logger mockLogger = Mockito.mock(Logger.class);
 
-        Settings cfg = new Settings().delegate(BasicExample.class.getName(), mockLogger);
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+        TestLoggerFactory loggerFactory = Settings.instance().
+                delegate(BasicExample.class.getName(), mockLogger).
+                buildLogging();
 
         BasicExample sut = new BasicExample(loggerFactory);
         sut.aMethodThatLogs();
@@ -226,8 +227,8 @@ on those occasions where you want console logging turned on in a test (eg for di
 caused by deliberate failures to clog the build console. In my experience this is most often around integration testing.
 
 ```
-Settings cfg = new Settings().suppressPrinting(".*Pattern to suppress.*");
-TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+TestLoggerFactory loggerFactory = Settings.instance().
+            suppressPrinting(".*Pattern to suppress.*").buildLogging();
 
 Logger logger = loggerFactory.getLogger("name");
 

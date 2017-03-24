@@ -4,11 +4,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import slf4jtest.*;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class Examples {
 
@@ -18,9 +19,9 @@ public class Examples {
     @Test
     public void demoConsoleLoggingUsingConstructor() throws Exception {
 
-        Settings cfg = new Settings()
-                .enableAll(); // necessary as by default only ErrorLevel is enabled
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(cfg);
+        TestLoggerFactory loggerFactory = Settings.instance()
+                .enableAll() // necessary as by default only ErrorLevel is enabled
+                .buildLogging();
 
         TestLogger logger = loggerFactory.getLogger("MyLogger");
 
@@ -67,24 +68,51 @@ public class Examples {
         * as we're trying to prove a point about what would have been printed to the console during a test.
         */
         StringPrintStream ps = StringPrintStream.newStream();
+
         PrintStream orig = System.err;
         System.setErr(ps);
 
-        try {
+        ArrayList<TestLoggerFactory> testCases = new ArrayList<TestLoggerFactory>() {{
             // configure the logging impl to suppress some patterns of logging output
-            TestLoggerFactory loggerFactory  = Settings.instance()
-                    .suppressPrinting(".*Pattern to suppress.*")
-                    .buildLogging();
+            add(Settings.instance()
+                    .suppressPrinting("(?s).*Pattern to suppress.*")
+                    .buildLogging());
+            add(Settings.instance()
+                    .suppressPrinting(Pattern.compile(".*Pattern to suppress.*", Pattern.DOTALL))
+                    .buildLogging());
 
-            TestLogger logger = loggerFactory.getLogger(this.getClass());
+            Predicate<LogMessage> pred = new Predicate<LogMessage>() {
+                Pattern pat = Pattern.compile("(?s).*Pattern to suppress.*");
+                public boolean matches(LogMessage row) {
+                    return pat.matcher(row.text).matches();
+                }
+            };
 
-            // do some logging and verify that some of it was suppressed
-            logger.error("Should be printed");
-            logger.error("Pattern to suppress << should not be printed");
+            add(Settings.instance()
+                    .suppressPrinting(pred)
+                    .buildLogging());
+        }};
 
-            // also make assertions about what would have been logged
-            assertContains(ps, "Should be printed");
-            assertNotContains(ps, "Pattern to suppress");
+        try {
+            for (int a = 0; a < testCases.size(); a++) {
+                ps.clear();
+                try {
+                    TestLoggerFactory loggerFactory = testCases.get(a);
+                    TestLogger logger = loggerFactory.getLogger(this.getClass());
+
+                    // do some logging and verify that some of it was suppressed
+                    logger.error("Should be printed");
+
+                    // use multiline to demonstrate exclusion of multiline logging messages
+                    logger.error("Pattern to suppress " + System.lineSeparator() +" << should not be printed");
+
+                    // also make assertions about what would have been logged
+                    assertContains(ps, "Should be printed");
+                    assertNotContains(ps, "Pattern to suppress");
+                } catch (Throwable ex) {
+                    throw new AssertionError("failed test " + a, ex);
+                }
+            }
         } finally {
             System.setErr(orig);
         }
@@ -103,7 +131,8 @@ public class Examples {
         Logger mockLogger = Mockito.mock(Logger.class);
 
         // setup the logging impl so that logging to the logger "MyLogger" is directed at the mock
-        TestLoggerFactory loggerFactory = new Settings().delegate("MyLogger", mockLogger).buildLogging();
+        TestLoggerFactory loggerFactory = Settings.instance()
+                .delegate("MyLogger", mockLogger).buildLogging();
 
         // do some work
         TestLogger logger = loggerFactory.getLogger("MyLogger");

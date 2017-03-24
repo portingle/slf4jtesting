@@ -28,7 +28,10 @@ class LoggerExtensionsImpl implements LoggerExtensions {
     }
 
     private void doConsole(LogMessage message) {
-        if (settings.isEnabled(message.level) && settings.printingEnabled && !isPrintSuppressed(message.text)) {
+        boolean levelIsEnabled = settings.isEnabled(message.level);
+        boolean messageIsntSuppressed = !isPrintSuppressed(message);
+
+        if (levelIsEnabled && settings.printingEnabled && messageIsntSuppressed) {
             PrintStream out = settings.printStreams.get(message.level);
             out.println(layout(message));
             out.flush();
@@ -44,9 +47,9 @@ class LoggerExtensionsImpl implements LoggerExtensions {
                 " - " + message.text;
     }
 
-    private boolean isPrintSuppressed(String msg) {
-        for (String regex : settings.printSuppressions) {
-            if (msg.matches(regex))
+    private boolean isPrintSuppressed(LogMessage msg) {
+        for (Predicate<LogMessage> predicate : settings.printSuppressions) {
+            if (predicate.matches(msg))
                 return true;
         }
         return false;
@@ -57,18 +60,27 @@ class LoggerExtensionsImpl implements LoggerExtensions {
     }
 
     /*
-    * @deprecated "use matches(..)
+    * does a String.contains(String) style comparison
     */
-    public boolean contains(String regex) {
-        return matches(regex);
+    public boolean contains(String substring) {
+        return matches(new Predicate<LogMessage>() {
+            public boolean matches(LogMessage lm) {
+                return lm.text.contains(substring);
+            }
+        });
+    }
+
+    public boolean contains(LogLevel level, String substring) {
+        return matches(new Predicate<LogMessage>() {
+            public boolean matches(LogMessage lm) {
+                return lm.text.contains(substring) && lm.level == level;
+            }
+        });
     }
 
     public boolean matches(final String regex) {
-        return matches(new Predicate<LogMessage>() {
-            public boolean matches(LogMessage lm) {
-                return lm.text.matches(regex);
-            }
-        });
+        Pattern pat = Pattern.compile(regex, Pattern.DOTALL);
+        return matches(pat);
     }
 
     public boolean matches(final Pattern regex) {
@@ -79,19 +91,9 @@ class LoggerExtensionsImpl implements LoggerExtensions {
         });
     }
 
-    /*
-    * @deprecated "use matches(..)
-    */
-    public boolean contains(LogLevel level, String regex) {
-        return matches(level, regex);
-    }
-
     public boolean matches(final LogLevel level, final String regex) {
-        return matches(new Predicate<LogMessage>() {
-            public boolean matches(LogMessage lm) {
-                return lm.level == level && lm.text.matches(regex);
-            }
-        });
+        Pattern pat = Pattern.compile(regex, Pattern.DOTALL);
+        return matches(level, pat);
     }
 
     @Override

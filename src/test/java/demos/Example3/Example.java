@@ -14,15 +14,14 @@ public class Example {
     public void testMultiLineMatching() {
 
         // enable info logging because only error is enabled by default
-        Settings settings = new Settings().enable(LogLevel.InfoLevel);
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(settings);
+        TestLoggerFactory loggerFactory = Settings.instance().enable(LogLevel.InfoLevel).buildLogging();
         TestLogger logger = loggerFactory.getLogger(this.getClass());
 
         // do some multiline logging
         logger.info("Line1" + System.lineSeparator() + "Line2");
 
-        // this one doesn't match multiline logging
-        assert (!loggerFactory.matches("Line1.*"));
+        // this one does match multiline logging
+        assert (loggerFactory.matches("Line1.*"));
 
         // using DOTALL we can match multiline
         Pattern regex = Pattern.compile("Line1.*", Pattern.DOTALL);
@@ -45,8 +44,9 @@ public class Example {
     public void testLogMessageMatching() {
 
         // enable info logging because only error is enabled by default
-        Settings settings = new Settings().enable(LogLevel.InfoLevel);
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(settings);
+        TestLoggerFactory loggerFactory = Settings.instance().enable(LogLevel.InfoLevel)
+                .buildLogging();
+
         TestLogger logger = loggerFactory.getLogger(this.getClass());
 
         logger.info("Line1" + System.lineSeparator() + "Line2");
@@ -65,8 +65,7 @@ public class Example {
     public void testLogMessageMatchingUsingPredicate() {
 
         // enable info logging because only error is enabled by default
-        Settings settings = new Settings().enable(LogLevel.InfoLevel);
-        TestLoggerFactory loggerFactory = new TestLoggerFactory(settings);
+        TestLoggerFactory loggerFactory = Settings.instance().enable(LogLevel.InfoLevel).buildLogging();
         TestLogger logger = loggerFactory.getLogger(this.getClass());
 
         logger.info("Line1" + System.lineSeparator() + "Line2");
@@ -81,6 +80,7 @@ public class Example {
 
         try {
             final Pattern nonMatch = Pattern.compile("NOTGOOD");
+
             logger.assertMatches(new Predicate<LogMessage>() {
                 public boolean matches(LogMessage row) {
                     return nonMatch.matcher(row.text).matches();
