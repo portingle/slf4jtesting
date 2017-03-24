@@ -62,7 +62,7 @@ classpathHell {
 build.dependsOn(['checkClasspath'])
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.0'
+    gradleVersion = '3.4.1'
 }
 
 
