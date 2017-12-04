@@ -1,5 +1,12 @@
 language: java
+
 jdk:
   - oraclejdk8
+  - oraclejdk7
+
+# use precise specifically as it's the last os build supporting jdk7
+# when 7 is retired then this can be deleted
+dist: precise
+
 install: true
 
