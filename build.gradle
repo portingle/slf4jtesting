@@ -129,7 +129,7 @@ if (project.properties.containsKey("sonatypeUsername")) {
         }
     }
 } else {
-    println("release is disabled - change the 'release' flag in build.gradle if required")
+    println("release is disabled - 'sonatypeUsername' is undefined")
 }
 
 wrapper {
