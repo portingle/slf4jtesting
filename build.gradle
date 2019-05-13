@@ -17,12 +17,13 @@ repositories {
 buildscript {
 
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
     dependencies {
         // check maven central for the latest release
-        classpath 'com.portingle:classpath-hell:1.2'
+        classpath 'com.portingle:classpath-hell:1.5'
     }
 }
 
@@ -53,11 +54,15 @@ test {
 }
 
 classpathHell {
-  resourceExclusions = [
-          "LICENSE.txt",
-          "^META-INF/.*",
-          "org/"
-  ]
+    suppressExactDupes = true
+
+    configurationsToScan = [ configurations.testRuntime ]
+
+    resourceExclusions = [
+            "LICENSE.txt",
+            "^META-INF/.*",
+            ".*/\$"
+    ]
 }
 
 build.dependsOn(['checkClasspath'])
@@ -123,4 +128,10 @@ if (project.properties.containsKey("sonatypeUsername")) {
             }
         }
     }
+} else {
+    println("release is disabled - change the 'release' flag in build.gradle if required")
+}
+
+wrapper {
+    distributionUrl = "https://services.gradle.org/distributions/gradle-4.0-bin.zip"
 }

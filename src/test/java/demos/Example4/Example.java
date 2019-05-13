@@ -58,6 +58,7 @@ public class Example {
 
         // this one does match multiline logging
         assert (loggerFactory.matches("Line1.*"));
+        assert (loggerFactory.matches("Line1.*Line2"));
         assert (!loggerFactory.matches("MYPATTERN.*"));
 
     }
