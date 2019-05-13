@@ -236,6 +236,44 @@ logger.error("Pattern to suppress - will not be printed");
 logger.error("This will be printed");
 ```
 
+### Installing your own logger to render the screen logging 
+
+```
+ private Settings installAlternativeScreenLogger(Settings s) {
+        LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
+
+//Create a new console
+        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+        consoleAppender.setContext(context);
+
+//Message Encoder
+        PatternLayoutEncoder ple = new PatternLayoutEncoder();
+        ple.setContext(context);
+        ple.setPattern("MYPATTERN %date %level [%thread] %logger{10} %msg%n");
+        ple.start();
+        consoleAppender.setEncoder(ple);
+
+        consoleAppender.start();
+
+//Get ROOT logger, and add appender to it
+        ch.qos.logback.classic.Logger alternativeLogger = context.getLogger("CONSOLE"); //Logger.ROOT_LOGGER_NAME);
+        alternativeLogger.setAdditive(false);
+        alternativeLogger.setLevel(Level.INFO);
+        alternativeLogger.addAppender(consoleAppender);
+
+        return s.printingEnabled(false).delegate(this.getClass().getName(), alternativeLogger);
+    }
+
+    public void configureLogging() {
+
+        // enable info logging because only error is enabled by default
+        Settings basicSettings = Settings.instance().enable(LogLevel.InfoLevel);
+
+        TestLoggerFactory loggerFactory = installAlternativeScreenLogger(basicSettings).buildLogging();
+        
+        ....
+```
+
 ### Scala note
 
 I do mostly scala programming these days so I thought a scala usage example might be interesting
