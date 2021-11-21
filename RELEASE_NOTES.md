@@ -1,5 +1,15 @@
 # RELEASE NOTES
 
+- 1.2.0
+
+  - LogMessage is now JavaBeen compliant to ease use with Hamcrest. 
+  ```java
+   Matcher<Class> matcherName = allOf(
+   hasProperty("level", equalTo(LogLevel.ERROR)),
+   hasProperty("text", equalTo("Some message")));
+   ```
+
+
 - 1.1.3
 
   - added StringPrintStream.clear()

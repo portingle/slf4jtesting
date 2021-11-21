@@ -1,5 +1,8 @@
 package slf4jtest;
 
+import lombok.Data;
+
+@Data
 public class LogMessage {
     public final String logName;
     public final LogLevel level;
