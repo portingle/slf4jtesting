@@ -13,7 +13,7 @@ buildscript {
 
     dependencies {
         // check maven central for the latest release
-        classpath 'com.portingle:classpath-hell:1.5'
+        classpath 'com.portingle:classpath-hell:1.7.0'
     }
 
 }
@@ -152,3 +152,19 @@ test {
         events "started", "passed", "skipped", "failed"
     }
 }
+
+apply plugin: 'com.portingle.classpathHell'
+
+classpathHell {
+    suppressExactDupes = true
+
+    configurationsToScan = [ configurations.testRuntimeClasspath ]
+
+    resourceExclusions = [
+            "LICENSE.txt",
+            "^META-INF/.*",
+            ".*/\$"
+    ]
+}
+
+build.dependsOn(['checkClasspath'])
