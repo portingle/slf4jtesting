@@ -1,4 +1,5 @@
 // .\gradlew clean build publishToSonatype closeAndReleaseSonatypeStagingRepository
+// to see staged builds login and go to https://oss.sonatype.org/#stagingRepositories
 
 buildscript {
 
@@ -19,6 +20,7 @@ buildscript {
 
 plugins {
     id("io.github.gradle-nexus.publish-plugin").version("1.0.0")
+    id 'java-library'
 }
 
 apply plugin: 'java'
@@ -44,14 +46,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 //https://sasbury.github.io/notes/2019/gradle_travis_sonatype.html
@@ -59,79 +56,89 @@ artifacts {
     archives jar, javadocJar, sourcesJar
 }
 
-tasks {
-    signing {
-        onlyIf { nexusPublishing.useStaging.get() }
 
-        sign configurations.archives
-    }
-}
+if (project.properties.containsKey("sonatypeUsername")) {
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-//                artifact jar
-            artifact sourcesJar
-            artifact javadocJar
-
-//                artifact(sourcesJar) {
-//                    classifier = "sources"
-//                }
-//
-//                artifact(javadocJar) {
-//                    classifier = "javadoc"
-//                }
-
-            pom {
-                name = 'slf4jtesting'
-                packaging = 'jar'
-                description = 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
-                url = 'https://github.com/portingle/slf4jtesting'
-
-                scm {
-                    connection = 'scm:git@github.com:portingle/slf4jtesting.git'
-                    developerConnection = 'scm:git@github.com:portingle/slf4jtesting.git'
-                    url = 'scm:git@github.com:portingle/slf4jtesting.git'
-                }
-
-                licenses {
-                    license {
-                        name = 'The MIT Licence (MIT)'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'Johnlon'
-                        name = 'John Lonergan'
-                    }
-                }
-            }
-
-            // create the signed artifacts
-            project.tasks.signArchives.signatureFiles.each {
-                artifact(it) {
-                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
-                    if (matcher.find()) {
-                        classifier = matcher.group(1)
-                    } else {
-                        classifier = null
-                    }
-                    extension = 'jar.asc'
-                }
-            }
+    tasks {
+        signing {
+            sign configurations.archives
         }
+    }
 
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                pom {
+                    name = 'slf4jtesting'
+                    packaging = 'jar'
+                    description = 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
+                    url = 'https://github.com/portingle/slf4jtesting'
+
+                    scm {
+                        connection = 'scm:git@github.com:portingle/slf4jtesting.git'
+                        developerConnection = 'scm:git@github.com:portingle/slf4jtesting.git'
+                        url = 'scm:git@github.com:portingle/slf4jtesting.git'
+                    }
+
+                    licenses {
+                        license {
+                            name = 'The MIT Licence (MIT)'
+                            url = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'Johnlon'
+                            name = 'John Lonergan'
+                        }
+                    }
+                }
+
+                // create the signed artifacts
+                project.tasks.signArchives.signatureFiles.each {
+                    artifact(it) {
+                        def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                        if (matcher.find()) {
+                            classifier = matcher.group(1)
+                        } else {
+                            classifier = null
+                        }
+                        extension = 'jar.asc'
+                    }
+                }
+                pom.withXml {
+                    def pomFile = file("${project.buildDir}/generated-pom.xml")
+                    writeTo(pomFile)
+                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                    artifact(pomAscFile) {
+                        classifier = null
+                        extension = 'pom.asc'
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    nexusPublishing {
+        repositories {
+            // relies on sonatypeUsername/sonatypePassword being defined in "{gradle_home}/gradle.properties"
+            sonatype()
+        }
     }
 }
 
-nexusPublishing {
-    repositories {
-        // relies on sonatypeUsername/sonatypePassword being defined in "{gradle_home}/gradle.properties"
-        sonatype()
-    }
+/* Avoid this issue when publishing by NOT sending a geadle "module" file
+Missing Signature: '/com/portingle/slf4jtesting/1.2.0/slf4jtesting-1.2.0.module.asc' does not exist for 'slf4jtesting-1.2.0.module'
+Would be better to figure out how to sign it.
+*/
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
