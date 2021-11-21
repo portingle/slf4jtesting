@@ -1,38 +1,47 @@
-group 'com.portingle'
-version '1.1.3'
-
-apply plugin: 'maven'
-
-archivesBaseName = "slf4jtesting"
-
-apply plugin: 'java'
-apply plugin: 'com.portingle.classpathHell'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
+// .\gradlew clean build publishToSonatype closeAndReleaseSonatypeStagingRepository
 
 buildscript {
 
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
     }
+
 
     dependencies {
         // check maven central for the latest release
         classpath 'com.portingle:classpath-hell:1.5'
     }
+
 }
 
-dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.24'
+plugins {
+    id("io.github.gradle-nexus.publish-plugin").version("1.0.0")
+}
 
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.mockito:mockito-core:1.10.19'
-    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.13'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+repositories {
+    mavenCentral()
+}
+
+group 'com.portingle'
+version '1.2.0'
+archivesBaseName = "slf4jtesting"
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.13'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
 task javadocJar(type: Jar) {
@@ -45,93 +54,94 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+//https://sasbury.github.io/notes/2019/gradle_travis_sonatype.html
 artifacts {
-    archives javadocJar, sourcesJar
+    archives jar, javadocJar, sourcesJar
 }
 
-test {
-    testLogging.showStandardStreams = true
-}
-
-classpathHell {
-    suppressExactDupes = true
-
-    configurationsToScan = [ configurations.testRuntime ]
-
-    resourceExclusions = [
-            "LICENSE.txt",
-            "^META-INF/.*",
-            ".*/\$"
-    ]
-}
-
-build.dependsOn(['checkClasspath'])
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.4.1'
-}
-
-
-// TODO ....
-// consider using the Gradle Nexus Staging Maven as this avoids need to use the NExus gui to close and release the stage artifact.
-// if the sonatypeUsername is provided by the gradle properties then a release is enabled
-
-if (project.properties.containsKey("sonatypeUsername")) {
-    apply plugin: 'signing'
-
+tasks {
     signing {
+        onlyIf { nexusPublishing.useStaging.get() }
+
         sign configurations.archives
     }
+}
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+//                artifact jar
+            artifact sourcesJar
+            artifact javadocJar
 
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//                artifact(sourcesJar) {
+//                    classifier = "sources"
+//                }
+//
+//                artifact(javadocJar) {
+//                    classifier = "javadoc"
+//                }
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+            pom {
+                name = 'slf4jtesting'
+                packaging = 'jar'
+                description = 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
+                url = 'https://github.com/portingle/slf4jtesting'
+
+                scm {
+                    connection = 'scm:git@github.com:portingle/slf4jtesting.git'
+                    developerConnection = 'scm:git@github.com:portingle/slf4jtesting.git'
+                    url = 'scm:git@github.com:portingle/slf4jtesting.git'
                 }
 
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                licenses {
+                    license {
+                        name = 'The MIT Licence (MIT)'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
                 }
 
-                pom.project {
-                    name 'slf4jtesting'
-                    packaging 'jar'
-
-                    // optionally artifactId can be defined here
-                    description 'SLF4JTesting is a library that provides facilities for log testing that are simple to use and optimised for use in environments with concurrent test execution and/or where console logging is desired.'
-                    url 'https://github.com/portingle/slf4jtesting'
-
-                    scm {
-                        connection 'scm:git@github.com:portingle/slf4jtesting.git'
-                        developerConnection 'scm:git@github.com:portingle/slf4jtesting.git'
-                        url 'scm:git@github.com:portingle/slf4jtesting.git'
-                    }
-
-                    licenses {
-                        license {
-                            name 'The MIT Licence (MIT)'
-                            url 'https://opensource.org/licenses/MIT'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'Johnlon'
-                            name 'John Lonergan'
-                        }
+                developers {
+                    developer {
+                        id = 'Johnlon'
+                        name = 'John Lonergan'
                     }
                 }
             }
+
+            // create the signed artifacts
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
         }
+
     }
-} else {
-    println("release is disabled - 'sonatypeUsername' is undefined")
 }
 
-wrapper {
-    distributionUrl = "https://services.gradle.org/distributions/gradle-4.0-bin.zip"
+nexusPublishing {
+    repositories {
+        // relies on sonatypeUsername/sonatypePassword being defined in "{gradle_home}/gradle.properties"
+        sonatype()
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging {
+        exceptionFormat = 'full'
+        events "started", "passed", "skipped", "failed"
+    }
 }
